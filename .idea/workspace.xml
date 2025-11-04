@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/api.server.py" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/ml_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logs/recorder.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/ts_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rover/rover_ml_server.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rover/rover_ts_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/topologia/topologiaProjeto.xml" beforeDir="false" afterPath="$PROJECT_DIR$/topologia/topologiaProjeto.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,30 +26,30 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="34ylCE3u9uiNbxSnL7ij5oGj4qz" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/gongas/Desktop/TP2-CC",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/gongas/Desktop/TP2-CC&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -72,6 +71,8 @@
       <option name="presentableId" value="Default" />
       <updated>1762193562945</updated>
       <workItem from="1762193564057" duration="13089000" />
+      <workItem from="1762251288791" duration="2297000" />
+      <workItem from="1762263524453" duration="6281000" />
     </task>
     <servers />
   </component>
