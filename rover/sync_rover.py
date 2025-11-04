@@ -40,14 +40,15 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('0.0.0.0', 0))
 
+timeout = 2
+
+
 while sending_max_times > 0:
 
     sock.sendto(json.dumps(msg_sync).encode('utf-8'), (MOTHER_IP, MOTHER_PORT))
     sending_max_times-=1
 
-
-
-    sock.settimeout(3)
+    sock.settimeout(timeout)
     try:
         data, addr = sock.recvfrom(1024)
         print("rover 2 recebeu: {}".format(data))
@@ -59,6 +60,8 @@ while sending_max_times > 0:
 
     except socket.timeout:
         continue
+
+    timeout *= 2
 
 
 if sending_max_times == 0:

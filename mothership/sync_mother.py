@@ -63,7 +63,7 @@ while True:
 
         sock.sendto(json.dumps(ack_msg).encode('utf-8'), addr)
 
-    
+
 
 
 
