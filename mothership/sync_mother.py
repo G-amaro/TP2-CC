@@ -6,19 +6,18 @@ import time
 from contextlib import aclosing
 from datetime import datetime
 
-MOTHER_IP = '10.0.3.20'
 MOTHER_PORT = 50000
 
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
 
 logging.basicConfig(
-    filename=log_path,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    filename = log_path,
+    level    = logging.INFO,
+    format   = '%(asctime)s - %(levelname)s - %(message)s'
 )
 
-file_dir = os.path.dirname(__file__)
+file_dir  = os.path.dirname(__file__)
 json_path = os.path.join(file_dir, "../info/rovers_info.json")
 with open(json_path, "r") as f:
     dados = json.load(f)
@@ -40,15 +39,15 @@ while True:
 
         for r in dados:
             if r["id"] == answer["rover_id"]: #info ja existe (atualizar info)
-                r["IP"] = addr[0]
+                r["IP"]   = addr[0]
                 r["port"] = addr[1]
                 info = True
                 break
 
         if not info:
             rover_info = {
-                "id": answer["rover_id"],
-                "IP": addr[0],
+                "id":   answer["rover_id"],
+                "IP":   addr[0],
                 "port": addr[1]
             }
             dados.append(rover_info)

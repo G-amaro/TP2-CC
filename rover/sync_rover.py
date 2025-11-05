@@ -41,6 +41,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('0.0.0.0', 0))
 
 timeout = 2
+#time_sleep = 2
 
 
 while sending_max_times > 0:
@@ -49,21 +50,26 @@ while sending_max_times > 0:
     sending_max_times-=1
 
     sock.settimeout(timeout)
+
     try:
+
         data, addr = sock.recvfrom(1024)
         print("rover 2 recebeu: {}".format(data))
         data= json.loads(data.decode('utf-8'))
+
         if data['type'] == "sync ack":
             logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {data['id']}  : {data['type']}")
             break
 
 
     except socket.timeout:
+        #time.sleep(timesleep)
         continue
 
     timeout *= 2
+    #timesleep *=2
 
 
 if sending_max_times == 0:
-    logging.error(f"Rover "+ str(rover_id) + ": Max number of sync tries exceeded. Sync ACK missing.")
+    logging.error(f"Rover "+ str(rover_id) + ": Max number of sync tries with mothership exceeded. Sync ACK missing.")
 sock.close()

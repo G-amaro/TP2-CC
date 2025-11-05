@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/recorder.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/recorder.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +72,8 @@
       <updated>1762193562945</updated>
       <workItem from="1762193564057" duration="13089000" />
       <workItem from="1762251288791" duration="2297000" />
-      <workItem from="1762263524453" duration="7386000" />
+      <workItem from="1762263524453" duration="7721000" />
+      <workItem from="1762338783430" duration="1797000" />
     </task>
     <servers />
   </component>

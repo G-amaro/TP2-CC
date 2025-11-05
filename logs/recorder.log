@@ -1,0 +1,14 @@
+2025-11-05 10:54:28,761 - INFO - Rover 1 (10.0.4.20:41144) -> Nave Mae: sync request
+2025-11-05 10:54:30,763 - INFO - Rover 1 (10.0.4.20:41144) -> Nave Mae: sync request
+2025-11-05 10:54:32,765 - INFO - Rover 1 (10.0.4.20:41144) -> Nave Mae: sync request
+2025-11-05 10:54:34,577 - INFO - Rover 2 (10.0.0.20:40310) -> Nave Mae: sync request
+2025-11-05 10:54:34,768 - INFO - Rover 1 (10.0.4.20:41144) -> Nave Mae: sync request
+2025-11-05 10:54:36,579 - INFO - Rover 2 (10.0.0.20:40310) -> Nave Mae: sync request
+2025-11-05 10:54:36,769 - INFO - Rover 1 (10.0.4.20:41144) -> Nave Mae: sync request
+2025-11-05 10:54:38,582 - INFO - Rover 2 (10.0.0.20:40310) -> Nave Mae: sync request
+2025-11-05 10:54:38,771 - ERROR - Rover 1: Max number of sync tries with mothership exceeded. Sync ACK missing.
+2025-11-05 10:54:40,129 - INFO - Rover 3 (10.0.1.20:34409) -> Nave Mae: sync request
+2025-11-05 10:54:40,130 - INFO - Nave Mae(10.0.2.20:50000) -> Rover 3  : sync ack
+2025-11-05 10:54:40,584 - INFO - Rover 2 (10.0.0.20:40310) -> Nave Mae: sync request
+2025-11-05 10:54:42,586 - INFO - Rover 2 (10.0.0.20:40310) -> Nave Mae: sync request
+2025-11-05 10:54:44,588 - ERROR - Rover 2: Max number of sync tries with mothership exceeded. Sync ACK missing.
