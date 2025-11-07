@@ -24,10 +24,7 @@ MOTHER_IP = None
 MOTHER_PORT = 50000
 
 
-if rover_id == 3:
-    MOTHER_IP = '10.0.2.20'
-if rover_id == 1 or rover_id == 2:
-    MOTHER_IP = '10.0.3.20'
+MOTHER_IP = '10.0.2.20'
 
 msg_sync= {
         "rover_id": str(rover_id),
@@ -41,7 +38,7 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('0.0.0.0', 0))
 
 timeout = 2
-#time_sleep = 2
+time_sleep = 1
 
 
 while sending_max_times > 0:
@@ -63,7 +60,7 @@ while sending_max_times > 0:
 
 
     except socket.timeout:
-        #time.sleep(timesleep)
+        time.sleep(time_sleep)
         continue
 
     timeout *= 2
