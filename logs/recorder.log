@@ -1,6 +1,0 @@
-2025-11-07 09:46:23,774 - INFO - Rover 2 (10.0.0.20:54926) -> Nave Mae: sync request
-2025-11-07 09:46:23,775 - INFO - Nave Mae(10.0.2.20:50000) -> Rover 2  : sync ack
-2025-11-07 09:46:31,403 - INFO - Rover 1 (10.0.4.20:51992) -> Nave Mae: sync request
-2025-11-07 09:46:31,404 - INFO - Nave Mae(10.0.2.20:50000) -> Rover 1  : sync ack
-2025-11-07 09:46:36,593 - INFO - Rover 3 (10.0.1.20:58880) -> Nave Mae: sync request
-2025-11-07 09:46:36,597 - INFO - Nave Mae(10.0.2.20:50000) -> Rover 3  : sync ack
