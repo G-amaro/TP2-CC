@@ -38,7 +38,7 @@ while True:
         info = False
 
         for r in dados:
-            if r["id"] == answer["rover_id"]: #info ja existe (atualizar info)
+            if r["id"] == answer['rover_id']: #info ja existe (atualizar info)
                 r["IP"]   = addr[0]
                 r["port"] = addr[1]
                 info = True
@@ -46,7 +46,7 @@ while True:
 
         if not info:
             rover_info = {
-                "id":   answer["rover_id"],
+                "id":   answer['rover_id'],
                 "IP":   addr[0],
                 "port": addr[1]
             }
@@ -56,7 +56,7 @@ while True:
             json.dump(dados, f, indent=4)
 
         ack_msg = {
-            "id": answer["rover_id"],
+            "id": answer['rover_id'],
             "type": "sync ack"
         }
 
