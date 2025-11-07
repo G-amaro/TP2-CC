@@ -61,10 +61,10 @@ while sending_max_times > 0:
 
     except socket.timeout:
         time.sleep(time_sleep)
+        time_sleep *= 2
         continue
 
-    timeout *= 2
-    #timesleep *=2
+
 
 
 if sending_max_times == 0:
