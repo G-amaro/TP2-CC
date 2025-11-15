@@ -1,0 +1,28 @@
+sequenceDiagram
+    participant Rover 1
+    participant Mothership
+
+
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."
+
+    Mothership->>Rover 1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
+
+    Rover 1->>Mothership: Rover_ID = 1, Ack_Seq = 2, Message Type = "ack"
+
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".." #25%
+
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
+
+    Rover 1-xMothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50%
+    note right of Rover 1: ❌ Mensagem perdida na rede!
+    note right of Mothership: A Nave-Mãe não recebeu nada.
+
+    note left of Rover 1: T1: Timeout (2s) expira. Try 2...
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50% (RETRY)
+
+    note right of Mothership: A Nave-Mãe recebe Seq=4. É NOVO!
+    note right of Mothership: Processa o relatorio de 50%.
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+
+    note left of Rover 1: ACK recebido! Cancela o timer.
+    note left of Rover 1: Segue para o Seq=5 (75%) quando for altura.

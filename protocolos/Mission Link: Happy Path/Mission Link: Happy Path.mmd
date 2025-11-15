@@ -1,0 +1,19 @@
+---
+config:
+  theme: redux-color
+  look: neo
+---
+sequenceDiagram
+    participant Rover 1
+    participant Mothership
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."  
+    Mothership->>Rover 1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
+    Rover 1->>Mothership: Rover_ID = 1, Ack_Seq = 2, Message Type = "ack"
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".." #25%
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = ".." #50%
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 5, Message type = "mission report", Payload = ".." #75%
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 5, Message Type = "ack"
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 6, Message type = "mission conclusion", Payload = ".." #100% 
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 6, Message Type = "ack"

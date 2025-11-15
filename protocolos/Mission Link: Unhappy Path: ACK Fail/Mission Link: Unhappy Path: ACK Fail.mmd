@@ -1,0 +1,41 @@
+
+sequenceDiagram
+    participant Rover 1
+    participant Mothership
+
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."
+
+    Mothership->>Rover 1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
+
+    Rover 1->>Mothership: Rover_ID = 1, Ack_Seq = 2, Message Type = "ack"
+
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".." #25%
+
+    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..."
+    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+    
+    note right of Rover 1: ❌ ACK perdido na rede!
+
+    note left of Rover 1: T1: Timeout (2s) expira. Try 2...
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50% (RETRY)
+    
+    note right of Mothership: Mothership recebe Seq=4 duplicado.
+    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+
+    note right of Rover 1: ❌ ACK perdido outra vez!
+
+    note left of Rover 1: T2: Timeout (4s) expira. Try 3...
+    
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50% (RETRY)
+    
+    note right of Mothership: Mothership recebe Seq=4 duplicado.
+    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+
+    note right of Rover 1: ❌ ACK perdido outra vez!
+
+    note left of Rover 1: T3: Timeout (8s) expira. Try 3...
+   
+    Rover 1->>Mothership: Rover_ID = 1, Seq = 5, Message type = "mission error"
+    
+    note left of Rover 1: Rover aborta a missão e volta a IDLE.
