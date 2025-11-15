@@ -1,1 +1,0 @@
-# thread para udp (sync + ml), outra thread para tcp e outra para api
