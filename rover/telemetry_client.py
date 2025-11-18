@@ -1,86 +1,77 @@
 import socket
-import json
 import time
 import logging
 
 # --- Constantes de Rede ---
-# (Estas poderiam ser importadas de um ficheiro de config,
-# mas para este trabalho, podem ficar aqui)
 MOTHER_IP = '10.0.2.20'
-TELEMETRY_PORT = 50010  # Porta TCP (a mesma do telemetry_server.py)
-SEND_INTERVAL = 5       # Enviar telemetria a cada 5 segundos
+TELEMETRY_PORT = 50010
+SEND_INTERVAL = 5
+
+# --- Definição do Protocolo (39 Bytes) ---
+ID_W, POS_W, BAT_W, STATE_W, MISSION_W = 2, 5, 5, 12, 10
+TOTAL_MSG_SIZE = ID_W + (POS_W * 2) + BAT_W + STATE_W + MISSION_W 
 
 def run_telemetry_stream(state, lock):
-    """
-    Esta é a função de "target" para a Thread de Telemetria do Rover.
-    
-    1. Tenta ligar-se ao servidor TCP da Nave-Mãe.
-    2. Se conseguir, entra em loop e envia dados de estado a cada X seg.
-    3. Se a ligação falhar, tenta religar-se.
-    """
-    # Obter o logger. Se o main configurou um, isto vai para o ficheiro.
-    # Se não, vai para a consola.
-    log = logging.getLogger(__name__) # Usar __name__ é boa prática
-
-    log.info("Thread de Telemetria (TCP) iniciada.")
-
-    # A variável 'sock' tem de ser gerida dentro do loop
-    # para que seja recriada em cada tentativa de ligação.
+    log = logging.getLogger('telemetry') # Usar logger configurado no main
+    log.info(f"Thread Telemetria iniciada (Protocolo Fixo: {TOTAL_MSG_SIZE} bytes).")
     sock = None
 
     while True:
         try:
-            # --- 1. Criar e Ligar o Socket ---
-            # AF_INET = IPv4, SOCK_STREAM = TCP
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            
-            log.info(f"A tentar ligar ao servidor de Telemetria em {MOTHER_IP}:{TELEMETRY_PORT}...")
+            log.info(f"A ligar a {MOTHER_IP}:{TELEMETRY_PORT}...")
             sock.connect((MOTHER_IP, TELEMETRY_PORT))
-            log.info(f"Ligado ao servidor de Telemetria!")
+            log.info("Ligado!")
 
-            # --- 2. Loop de Envio (enquanto estiver ligado) ---
             while True:
-                
-                # --- A. Ler o estado partilhado ---
                 with lock:
-                    # Criamos uma cópia para não segurar o lock
-                    # enquanto preparamos e enviamos a msg
-                    state_copy = state.copy() 
+                    # Copiar dados para evitar bloquear a thread principal
+                    st = state.copy() 
                 
-                # --- B. Preparar a mensagem ---
-                telemetry_data = {
-                    "rover_id": state_copy["rover_id"],
-                    "timestamp": time.time(),
-                    "posicao": state_copy["posicao"],
-                    "estado": state_copy["estado_op"],
-                    "bateria": round(state_copy["bateria"], 2)
-                }
+                # --- A. Formatar Dados (Padding) ---
                 
-                # --- C. Formatar e Enviar ---
-                # Usamos json.dumps para criar a string
-                # Adicionamos '\n' como delimitador (o nosso protocolo)
-                message_str = json.dumps(telemetry_data) + '\n'
+                # 1. ID (2 chars)
+                id_str = str(st["rover_id"]).rjust(ID_W)
+
+                # 2. Posição (Separar X e Y, 5 chars cada)
+                x, y = st["posicao"]
+                pos_x_str = f"{x:.1f}".rjust(POS_W)
+                pos_y_str = f"{y:.1f}".rjust(POS_W)
+
+                # 3. Bateria (5 chars)
+                bat_str = f"{st['bateria']:.1f}".rjust(BAT_W)
+
+                # 4. Estado (12 chars)
+                est_str = str(st["estado_op"]).ljust(STATE_W)
+
+                # 5. Missão (10 chars) - Tratar se for None
+                missao_raw = st.get("missao_atual")
+                if missao_raw is None:
+                    missao_raw = "Nenhuma"
+                miss_str = str(missao_raw).ljust(MISSION_W)
+
+                # --- B. Montar Mensagem ---
+                final_str = id_str + pos_x_str + pos_y_str + bat_str + est_str + miss_str
                 
-                # Convertemos a string para bytes (utf-8) e enviamos
-                sock.sendall(message_str.encode('utf-8'))
+                # Codificar para bytes (Método do Professor)
+                msg_bytes = final_str.encode('utf-8')
+
+                # Validação de segurança
+                if len(msg_bytes) != TOTAL_MSG_SIZE:
+                    log.error(f"Erro tamanho mensagem: tem {len(msg_bytes)}, esperava {TOTAL_MSG_SIZE}")
+                    # (Opcional: cortar ou rejeitar)
                 
-                log.info(f"Telemetria enviada: {telemetry_data['estado']}, Bat: {telemetry_data['bateria']:.1f}%")
+                # --- C. Enviar ---
+                sock.sendall(msg_bytes)
+                log.info(f"Enviado: ID={id_str}|Pos=({pos_x_str},{pos_y_str})|Bat={bat_str}|Est={est_str.strip()}|Mis={miss_str.strip()}")
 
                 time.sleep(SEND_INTERVAL)
 
-        except (socket.error, ConnectionRefusedError, BrokenPipeError, ConnectionResetError, TimeoutError) as e: 
-            log.warning(f"Erro na Telemetria ({e}). A tentar religar em 10 seg...")
-            
-        except KeyboardInterrupt:
-            log.info("A desligar thread de telemetria.")
-            break # Sair do loop 'while True' principal
-            
+        except (socket.error, ConnectionRefusedError, BrokenPipeError) as e: 
+            log.warning(f"Ligação perdida ({e}). A tentar em 10s...")
+            if sock: sock.close()
+            time.sleep(10)
         except Exception as e:
-            log.error(f"Erro inesperado na telemetria: {e}", exc_info=True)
-
-        finally:
-            # --- 3. Limpar antes de tentar religar ---
-            if sock:
-                sock.close() # Importante fechar o socket antigo
-            log.info("Socket de telemetria fechado. A aguardar 10s.")
-            time.sleep(10) # Esperar 10s antes de tentar o 'connect' de novo
+            log.error(f"Erro fatal na telemetria: {e}", exc_info=True)
+            if sock: sock.close()
+            time.sleep(10)

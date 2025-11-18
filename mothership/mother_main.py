@@ -5,67 +5,69 @@ import logging
 import time
 import sys
 import os
+import shutil # Biblioteca para apagar pastas/ficheiros
 
 # --- Importar as FUNÇÕES de serviço ---
-from telemetry_server import run_telemetry_server
-# from mission_link_server import run_mission_link_server # <<< COMENTADO
-# from api_server import run_api_server                   # <<< COMENTADO
+from telemetry_server import run_telemetry_server, DATA_DIR
+# from mission_link_server import run_mission_link_server
+# from api_server import run_api_server
 
-# --- Configuração de Logging Simples (para a consola) ---
+# --- Configuração de Logging ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 
-# --- 1. Definir o Estado Partilhado (Databases e Locks) ---
+# --- Estado Partilhado ---
 g_telemetry_database = {}
 g_telemetry_lock = threading.Lock()
+# g_rovers_info_lock = threading.Lock()
 
-# g_rovers_info_lock = threading.Lock() # <<< Pode ser comentado se não for usado
+# --- FUNÇÃO DE LIMPEZA ---
+def cleanup_telemetry_data():
+    """Apaga os ficheiros de histórico de telemetria gerados."""
+    logging.info("A limpar ficheiros de telemetria...")
+    
+    # Opção 1: Apagar a pasta inteira e recriá-la
+    if os.path.exists(DATA_DIR):
+        try:
+            shutil.rmtree(DATA_DIR) # Apaga a pasta e tudo o que lá está
+            os.makedirs(DATA_DIR)   # Recria a pasta vazia para a próxima vez
+            logging.info(f"Pasta {DATA_DIR} limpa com sucesso.")
+        except Exception as e:
+            logging.error(f"Erro ao limpar dados: {e}")
 
-
-# --- O Bloco Main (A "thread principal") ---
+# --- Bloco Main ---
 if __name__ == "__main__":
     
-    logging.info("[Main] A arrancar Nave-Mãe (Modo Teste Telemetria)...")
+    logging.info("[Main] A arrancar Nave-Mãe (Modo Teste)...")
 
-    # --- 2. Criar as Threads de Serviço ---
-
-    # Thread 1: Servidor de Telemetria (TCP)
+    # --- Lançar Threads ---
     thread_ts = threading.Thread(
         target=run_telemetry_server, 
         name="Telemetry-TCP",
         args=(g_telemetry_database, g_telemetry_lock)
     )
     
-    # --- As outras threads estão comentadas ---
-    # Thread 2: Servidor de Mission Link (UDP)
-    # thread_ml = threading.Thread(
-    #     target=run_mission_link_server,
-    #     name="MissionLink-UDP",
-    #     args=(g_rovers_info_lock)
-    # )
-    
-    # Thread 3: Servidor da API (HTTP)
-    # thread_api = threading.Thread(
-    #     target=run_api_server, 
-    #     name="API-HTTP",
-    #     args=(g_telemetry_database, g_telemetry_lock)
-    # )
-
-    # --- 3. Lançar os Serviços ---
     thread_ts.start()
-    # thread_ml.start()     # <<< COMENTADO
-    # thread_api.start()    # <<< COMENTADO
+    # thread_ml.start()
+    # thread_api.start()
 
-    logging.info("[Main] Serviço de Telemetria lançado.")
+    logging.info("[Main] Serviço lançado.")
 
-    # --- 4. Manter a Thread Principal Viva ---
+    # --- Manter Vivo ---
     try:
         thread_ts.join()
         # thread_ml.join()
         # thread_api.join()
+        
     except KeyboardInterrupt:
-        logging.info("[Main] A desligar Nave-Mãe (Ctrl+C)...")
+        print("\n") # Só para dar uma quebra de linha visual
+        logging.info("[Main] Interrupção recebida (Ctrl+C).")
+        
+        # --- CHAMAR LIMPEZA AQUI ---
+        cleanup_telemetry_data()
+        
+        logging.info("[Main] A desligar Nave-Mãe.")
         sys.exit(0)

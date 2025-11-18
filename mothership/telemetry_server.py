@@ -2,105 +2,128 @@
 
 import socket
 import threading
-import json
 import logging
+import time
+import json  # Necessário para guardar o ficheiro
+import os    # Necessário para criar pastas
 
-# Constantes para este módulo
-TELEMETRY_PORT = 50010  # Porta TCP
-HOST = '0.0.0.0'       # Ouvir em todas as interfaces
+TELEMETRY_PORT = 50010
+HOST = '0.0.0.0'
+
+# --- Definição do Protocolo (39 Bytes) ---
+ID_W, POS_W, BAT_W, STATE_W, MISSION_W = 2, 5, 5, 12, 10
+TOTAL_MSG_SIZE = ID_W + (POS_W * 2) + BAT_W + STATE_W + MISSION_W 
+
+# --- Configuração da Pasta de Dados ---
+# Vamos guardar tudo numa pasta 'telemetry_data' dentro da pasta 'mothership'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, 'telemetry_data')
+
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+def recv_all(sock, n):
+    data = b''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet: return None
+        data += packet
+    return data
+
+def save_telemetry_to_file(rover_id, data):
+    """
+    Guarda o dicionário de dados num ficheiro específico do rover.
+    Usa o modo 'append' (a) para criar um histórico (log).
+    """
+    filename = f"rover_{rover_id}_history.json"
+    filepath = os.path.join(DATA_DIR, filename)
+    
+    try:
+        with open(filepath, "a") as f:
+            # json.dump escreve o objeto, f.write('\n') muda de linha
+            json.dump(data, f)
+            f.write('\n') 
+    except Exception as e:
+        logging.getLogger('telemetry').error(f"Erro a gravar ficheiro JSON para Rover {rover_id}: {e}")
 
 def handle_rover_telemetry(client_socket, rover_addr, db, lock):
-    """
-    Esta função corre numa THREAD SEPARADA para cada rover.
-    Recebe e processa dados de telemetria de UM rover específico.
-    """
-    # Obter o logger de telemetria (que o main configurou)
     log = logging.getLogger('telemetry')
+    log.info(f"Handler iniciado para {rover_addr}")
     
-    rover_id = f"ID_Desconhecido@{rover_addr[0]}"
-    log.info(f"Nova ligação handler criada para {rover_addr}")
-
     try:
-        # Usar makefile() é a forma mais fácil de ler "linha a linha" (até ao '\n')
-        # 'r' = modo de leitura, 'utf-8' = encoding
-        client_file = client_socket.makefile('r', encoding='utf-8')
-        
-        # Este loop 'for' bloqueia até receber uma linha completa (terminada em \n)
-        for line in client_file:
+        while True:
+            # 1. Ler EXATAMENTE 39 bytes
+            msg_bytes = recv_all(client_socket, TOTAL_MSG_SIZE)
             
-            # 1. Tentar fazer parse do JSON
+            if not msg_bytes:
+                log.warning(f"Rover {rover_addr} desligou-se.")
+                break
+            
             try:
-                telemetry_data = json.loads(line)
-                
-                # Obter o ID do rover (e usá-lo para logging futuro)
-                rover_id = telemetry_data.get("rover_id", rover_id) 
-                
-                log.info(f"Recebido de {rover_id}: Estado={telemetry_data['estado']}, Bat={telemetry_data['bateria']:.1f}%")
+                msg = msg_bytes.decode('utf-8')
+            except UnicodeDecodeError:
+                log.error(f"Erro decode bytes de {rover_addr}")
+                continue
 
-                # 2. Atualizar a "base de dados" global de forma segura
-                # O 'lock' é passado a partir do main
+            # 2. Fatiar (Slicing)
+            cursor = 0
+            id_str = msg[cursor : cursor + ID_W]; cursor += ID_W
+            x_str  = msg[cursor : cursor + POS_W]; cursor += POS_W
+            y_str  = msg[cursor : cursor + POS_W]; cursor += POS_W
+            bat_str= msg[cursor : cursor + BAT_W]; cursor += BAT_W
+            est_str= msg[cursor : cursor + STATE_W]; cursor += STATE_W
+            mis_str= msg[cursor : cursor + MISSION_W]
+
+            # 3. Converter e Guardar em RAM
+            try:
+                r_id = int(id_str.strip())
+                r_x = float(x_str.strip())
+                r_y = float(y_str.strip())
+                r_bat = float(bat_str.strip())
+                r_est = est_str.strip()
+                r_mis = mis_str.strip()
+                
+                telemetry_data = {
+                    "rover_id": r_id,
+                    "timestamp": time.time(),
+                    "posicao": (r_x, r_y),
+                    "bateria": r_bat,
+                    "estado": r_est,
+                    "missao": r_mis
+                }
+
+                log.info(f"RX Rover {r_id}: Pos({r_x},{r_y}) Bat({r_bat}%) Est({r_est})")
+                
+                # A. Guardar na RAM (Estado Atual)
                 with lock:
-                    # 'db' é o g_telemetry_database do main
-                    db[rover_id] = telemetry_data
-                    
-            except json.JSONDecodeError:
-                log.warning(f"Recebida mensagem mal formatada (não-JSON) de {rover_id}")
-            except KeyError as e:
-                log.warning(f"Mensagem de {rover_id} não tinha a chave esperada: {e}")
+                    db[str(r_id)] = telemetry_data 
 
-    except (socket.error, BrokenPipeError, ConnectionResetError):
-        log.warning(f"Ligação perdida com {rover_addr} (Rover: {rover_id})")
+                # B. Guardar no Disco (Histórico) <<< NOVO
+                save_telemetry_to_file(r_id, telemetry_data)
+
+            except ValueError as e:
+                log.error(f"Erro parse dados: {e}. Msg crua: '{msg}'")
+
     except Exception as e:
-        log.error(f"Erro inesperado no handler de {rover_addr} (Rover: {rover_id}): {e}")
+        log.error(f"Erro no handler {rover_addr}: {e}")
     finally:
-        # 3. Limpar
-        log.info(f"A fechar ligação handler com {rover_addr} (Rover: {rover_id})")
-        with lock:
-            # Opcional: Marcar rover como 'offline' na BD
-            if rover_id in db:
-                db[rover_id]["estado"] = "offline"
-        
         client_socket.close()
-        # A thread termina aqui
 
 
 def run_telemetry_server(db, lock):
-    """
-    Esta é a função "Rececionista" (Thread B).
-    É o ponto de entrada chamado pelo 'mother_main.py'.
-    
-    A sua única tarefa é aceitar novas ligações TCP
-    e lançar threads "Handler" para cuidar delas.
-    """
-    # Obter o logger de telemetria
     log = logging.getLogger('telemetry')
-    
     try:
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # SO_REUSEADDR permite reiniciar o servidor rapidamente
-        server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
+        server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_sock.bind((HOST, TELEMETRY_PORT))
         server_sock.listen()
+        log.info(f"Servidor Telemetria à escuta na porta {TELEMETRY_PORT}")
         
-        log.info(f"Servidor de Telemetria (TCP) à escuta na porta {TELEMETRY_PORT}...")
-
         while True:
-            # 1. 'accept()' bloqueia até um novo rover se ligar
-            client_sock, addr = server_sock.accept()
-            log.info(f"Nova ligação de {addr}. A criar thread handler...")
-            
-            # 2. Criar e lançar a thread "Handler" para este cliente
-            handler_thread = threading.Thread(
-                target=handle_rover_telemetry, 
-                args=(client_sock, addr, db, lock), # Passar a BD e o Lock
-                name=f"Handler-{addr[0]}",
-                daemon=True  # Permite ao programa fechar mesmo se as threads estiverem a correr
-            )
-            handler_thread.start()
-
+            c, a = server_sock.accept()
+            t = threading.Thread(target=handle_rover_telemetry, args=(c, a, db, lock), daemon=True)
+            t.start()
     except Exception as e:
-        log.critical(f"Servidor de Telemetria (TCP) CRASHOU: {e}", exc_info=True)
+        log.critical(f"Servidor CRASHOU: {e}")
     finally:
-        log.info("Servidor de Telemetria (TCP) a desligar.")
-        if 'server_sock' in locals():
-            server_sock.close()
+        if 'server_sock' in locals(): server_sock.close()
