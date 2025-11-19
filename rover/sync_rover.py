@@ -1,15 +1,7 @@
 import socket
-import json
-import sys
 import os
 import logging
 import time
-from datetime import datetime
-
-
-# rover_id=None
-# if sys.argv.__len__() == 2:
-#     rover_id = int(sys.argv[1])
 
 def sync(rover_id):
     file_dir = os.path.dirname(__file__)
@@ -21,43 +13,66 @@ def sync(rover_id):
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-    MOTHER_IP = None
-    MOTHER_PORT = 50000
 
 
+    SYNC_PORT = 50000
     MOTHER_IP = '10.0.2.20'
 
-    msg_sync= {
-            "rover_id": str(rover_id),
-            "type": "sync request"
-            #,"timestamp": datetime.now().isoformat()
-        }
 
-    sending_max_times = 5
+    #mensagem em JSON
+    # msg_sync= {
+    #         "rover_id": str(rover_id),
+    #         "type": "sync request"
+    #         #,"timestamp": datetime.now().isoformat()
+    #     }
+    # message = json.dumps(msg_sync).encode('utf-8')
+
+    #mensagem em string (nº de bytes otimizado)
+    msg_type = "R" # "R" significa request e "A" ack
+    msg_rover_id = str(rover_id).zfill(2)
+
+    msg_str = f"{msg_type}{msg_rover_id}"
+    message = msg_str.encode('utf-8')
+
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(('0.0.0.0', 0))
 
+
+    sending_max_times = 5
     timeout = 2
-    time_sleep = 1
+    time_sleep = 2
 
 
     while sending_max_times > 0:
 
-        sock.sendto(json.dumps(msg_sync).encode('utf-8'), (MOTHER_IP, MOTHER_PORT))
+        sock.sendto(message, (MOTHER_IP, SYNC_PORT))
         sending_max_times-=1
 
         sock.settimeout(timeout)
 
         try:
 
-            data, addr = sock.recvfrom(1024)
-            print("rover 2 recebeu: {}".format(data))
-            data= json.loads(data.decode('utf-8'))
+            data, addr = sock.recvfrom(32)
+            print("rover "+ rover_id + " recebeu: {}".format(data))
 
-            if data['type'] == "sync ack":
-                logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {data['id']}  : {data['type']}")
-                break
+
+            response_data= data.decode('utf-8') # Exemplo de output possivel "A01" A = ack e 01 = possivel id do rover
+
+            if(len(response_data) < 3):
+                continue
+
+            response_type = response_data[0] #
+            response_rover_id = response_data[1:3]
+
+
+
+            if response_type == "A" and response_rover_id == msg_rover_id:
+                logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {response_rover_id}  : {response_type}")
+                sock.close()
+                return True
+
 
 
         except socket.timeout:
@@ -67,7 +82,7 @@ def sync(rover_id):
 
 
 
+    logging.error(f"Rover "+ str(rover_id) + ": Max number of sync tries with mothership exceeded. Sync ACK missing.")
 
-    if sending_max_times == 0:
-        logging.error(f"Rover "+ str(rover_id) + ": Max number of sync tries with mothership exceeded. Sync ACK missing.")
     sock.close()
+    return False

@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/mother_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mother_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/rover_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/rover_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +79,8 @@
       <workItem from="1762507159348" duration="3684000" />
       <workItem from="1763113899857" duration="3033000" />
       <workItem from="1763223485925" duration="3679000" />
+      <workItem from="1763249952200" duration="1747000" />
+      <workItem from="1763505770073" duration="5126000" />
     </task>
     <servers />
   </component>

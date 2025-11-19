@@ -9,6 +9,7 @@ import shutil # Biblioteca para apagar pastas/ficheiros
 
 # --- Importar as FUNÇÕES de serviço ---
 from telemetry_server import run_telemetry_server, DATA_DIR
+from sync_mother import sync
 # from mission_link_server import run_mission_link_server
 # from api_server import run_api_server
 
@@ -43,13 +44,21 @@ if __name__ == "__main__":
     
     logging.info("[Main] A arrancar Nave-Mãe (Modo Teste)...")
 
-    # --- Lançar Threads ---
+    thread_sync = threading.Thread(
+        target=sync,
+        name="Sync",
+        args=(),
+        daemon = True # se a main for eliminada, nao se torna uma thread zombi
+    )
+
     thread_ts = threading.Thread(
         target=run_telemetry_server, 
         name="Telemetry-TCP",
-        args=(g_telemetry_database, g_telemetry_lock)
+        args=(g_telemetry_database, g_telemetry_lock),
+        daemon = True
     )
-    
+
+    thread_sync.start()
     thread_ts.start()
     # thread_ml.start()
     # thread_api.start()
@@ -58,9 +67,8 @@ if __name__ == "__main__":
 
     # --- Manter Vivo ---
     try:
-        thread_ts.join()
-        # thread_ml.join()
-        # thread_api.join()
+        while True:
+            time.sleep(1)
         
     except KeyboardInterrupt:
         print("\n") # Só para dar uma quebra de linha visual

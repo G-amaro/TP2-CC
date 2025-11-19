@@ -9,6 +9,7 @@ import random
 
 # --- Importar as FUNÇÕES de serviço ---
 from telemetry_client import run_telemetry_stream
+from sync_rover import sync
 # from mission_link_client import run_mission_link, do_rover_sync # <<< COMENTADO
 # from physics_simulator import run_physics_simulator             # <<< COMENTADO
 
@@ -47,11 +48,12 @@ if __name__ == "__main__":
         g_rover_state["estado_op"] = "sync"
 
     logging.info(f"--- A INICIAR ROVER {ROVER_ID} (Modo Teste Telemetria) ---")
-    
-    # --- 3. Executar Sincronização (FORÇAR SUCESSO) ---
+
+
+
     logging.info("A simular Sincronização (UDP)...")
-    # sync_success = do_rover_sync(g_rover_state, g_state_lock) # <<< COMENTADO
-    sync_success = True # <<< FORÇAR SUCESSO PARA O TESTE
+    sync_success = sync(g_rover_state) # sync nao vai precisar de lock ja que acontece antes do resto
+
     
     if not sync_success:
         logging.critical("Falha na sincronização. A desligar.")
