@@ -10,7 +10,7 @@ import shutil # Biblioteca para apagar pastas/ficheiros
 # --- Importar as FUNÇÕES de serviço ---
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
-# from mission_link_server import run_mission_link_server
+# from mission_link_mother import mission_link
 # from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
@@ -62,6 +62,13 @@ if __name__ == "__main__":
         args=(g_telemetry_database, g_telemetry_lock),
         daemon = True
     )
+
+    # thread_ml = threading.Thread(
+    #     target=mission_link,
+    #     name="Mission Link-UDP",
+    #     args=(),
+    #     daemon=True
+    # )
 
     thread_sync.start()
     thread_ts.start()
