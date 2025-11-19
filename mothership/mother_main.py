@@ -13,11 +13,16 @@ from sync_mother import sync
 # from mission_link_server import run_mission_link_server
 # from api_server import run_api_server
 
+file_dir = os.path.dirname(__file__)
+log_path = os.path.join(file_dir, "../logs/recorder.log")
+
 # --- Configuração de Logging ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[
+        logging.FileHandler(log_path, mode='a'),
+        logging.StreamHandler(sys.stdout)]
 )
 
 # --- Estado Partilhado ---

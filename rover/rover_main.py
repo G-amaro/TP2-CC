@@ -13,11 +13,18 @@ from sync_rover import sync
 # from mission_link_client import run_mission_link, do_rover_sync # <<< COMENTADO
 # from physics_simulator import run_physics_simulator             # <<< COMENTADO
 
+
+file_dir = os.path.dirname(__file__)
+log_path = os.path.join(file_dir, "../logs/recorder.log")
+
+
 # --- Configuração de Logging Simples (para a consola) ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[
+        logging.FileHandler(log_path, mode='a'),
+        logging.StreamHandler(sys.stdout)]
 )
 
 # --- 1. Definir o Estado Partilhado ---
@@ -41,20 +48,19 @@ if __name__ == "__main__":
         
     ROVER_ID = sys.argv[1]
     
-    threading.current_thread().name = f"Main-{ROVER_ID}"
+
     
     with g_state_lock:
         g_rover_state["rover_id"] = ROVER_ID
         g_rover_state["estado_op"] = "sync"
 
-    logging.info(f"--- A INICIAR ROVER {ROVER_ID} (Modo Teste Telemetria) ---")
 
 
 
     logging.info("A simular Sincronização (UDP)...")
-    sync_success = sync(g_rover_state) # sync nao vai precisar de lock ja que acontece antes do resto
+    sync_success = sync(ROVER_ID) # sync nao vai precisar de lock ja que acontece antes do resto
+    threading.current_thread().name = f"Main-{ROVER_ID}"
 
-    
     if not sync_success:
         logging.critical("Falha na sincronização. A desligar.")
         sys.exit(1)

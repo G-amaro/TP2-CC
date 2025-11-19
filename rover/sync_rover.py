@@ -1,19 +1,11 @@
 import socket
+import threading
 import os
 import logging
 import time
 
 def sync(rover_id):
-    file_dir = os.path.dirname(__file__)
-    log_path = os.path.join(file_dir, "../logs/recorder.log")
-
-    logging.basicConfig(
-        filename=log_path,
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-
-
+    threading.current_thread().name = f"Sync-{rover_id}"
 
     SYNC_PORT = 50000
     MOTHER_IP = '10.0.2.20'
@@ -68,8 +60,9 @@ def sync(rover_id):
 
 
 
+
             if response_type == "A" and response_rover_id == msg_rover_id:
-                logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {response_rover_id}  : {response_type}")
+                logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {response_rover_id}  : sync ack")
                 sock.close()
                 return True
 

@@ -13,14 +13,8 @@ def sync():
 
     SYNC_PORT = 50000
 
-    file_dir = os.path.dirname(__file__)
-    log_path = os.path.join(file_dir, "../logs/recorder.log")
 
-    logging.basicConfig(
-        filename=log_path,
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+
 
     file_dir = os.path.dirname(__file__)
     json_path = os.path.join(file_dir, "../info/rovers_info.json")
@@ -40,6 +34,8 @@ def sync():
             answer_type = answer_str[0]
             answer_id_rover = answer_str[1:3]
 
+            if not answer_id_rover.isdigit():
+                continue
 
             if answer_type == "R":
 
