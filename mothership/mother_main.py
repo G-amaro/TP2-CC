@@ -1,17 +1,12 @@
-# Ficheiro: mothership/mother_main.py
-
 import threading
 import logging
 import time
 import sys
 import os
-import shutil # Biblioteca para apagar pastas/ficheiros
+import shutil 
 
-# --- Importar as FUNÇÕES de serviço ---
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
-# from mission_link_mother import mission_link
-# from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")

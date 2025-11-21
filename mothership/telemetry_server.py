@@ -4,8 +4,8 @@ import socket
 import threading
 import logging
 import time
-import json  # Necessário para guardar o ficheiro
-import os    # Necessário para criar pastas
+import json  
+import os    
 
 TELEMETRY_PORT = 50010
 HOST = '0.0.0.0'
@@ -14,8 +14,6 @@ HOST = '0.0.0.0'
 ID_W, POS_W, BAT_W, STATE_W, MISSION_W = 2, 5, 5, 12, 10
 TOTAL_MSG_SIZE = ID_W + (POS_W * 2) + BAT_W + STATE_W + MISSION_W 
 
-# --- Configuração da Pasta de Dados ---
-# Vamos guardar tudo numa pasta 'telemetry_data' dentro da pasta 'mothership'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'telemetry_data')
 
@@ -31,16 +29,12 @@ def recv_all(sock, n):
     return data
 
 def save_telemetry_to_file(rover_id, data):
-    """
-    Guarda o dicionário de dados num ficheiro específico do rover.
-    Usa o modo 'append' (a) para criar um histórico (log).
-    """
+    
     filename = f"rover_{rover_id}_history.json"
     filepath = os.path.join(DATA_DIR, filename)
     
     try:
         with open(filepath, "a") as f:
-            # json.dump escreve o objeto, f.write('\n') muda de linha
             json.dump(data, f)
             f.write('\n') 
     except Exception as e:
@@ -52,7 +46,6 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
     
     try:
         while True:
-            # 1. Ler EXATAMENTE 39 bytes
             msg_bytes = recv_all(client_socket, TOTAL_MSG_SIZE)
             
             if not msg_bytes:
@@ -65,7 +58,6 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
                 log.error(f"Erro decode bytes de {rover_addr}")
                 continue
 
-            # 2. Fatiar (Slicing)
             cursor = 0
             id_str = msg[cursor : cursor + ID_W]; cursor += ID_W
             x_str  = msg[cursor : cursor + POS_W]; cursor += POS_W
@@ -74,7 +66,6 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
             est_str= msg[cursor : cursor + STATE_W]; cursor += STATE_W
             mis_str= msg[cursor : cursor + MISSION_W]
 
-            # 3. Converter e Guardar em RAM
             try:
                 r_id = int(id_str.strip())
                 r_x = float(x_str.strip())
@@ -94,11 +85,9 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
 
                 log.info(f"RX Rover {r_id}: Pos({r_x},{r_y}) Bat({r_bat}%) Est({r_est})")
                 
-                # A. Guardar na RAM (Estado Atual)
                 with lock:
                     db[str(r_id)] = telemetry_data 
 
-                # B. Guardar no Disco (Histórico) <<< NOVO
                 save_telemetry_to_file(r_id, telemetry_data)
 
             except ValueError as e:
