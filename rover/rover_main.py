@@ -8,7 +8,7 @@ import random
 from telemetry_client import run_telemetry_stream
 from sync_rover import sync
 # from mission_link_client import run_mission_link, do_rover_sync 
-# from physics_simulator import run_physics_simulator             
+from physics_simulator import run_physics_simulator             
 
 
 file_dir = os.path.dirname(__file__)
@@ -22,6 +22,9 @@ logging.basicConfig(
         logging.FileHandler(log_path, mode='a'),
         logging.StreamHandler(sys.stdout)]
 )
+
+physics_log = logging.getLogger('Physics')
+physics_log.setLevel(logging.DEBUG)
 
 g_rover_state = {
     "rover_id": None,
@@ -58,29 +61,35 @@ if __name__ == "__main__":
         g_rover_state["estado_op"] = "parado"
 
 
-    # Thread 1: Cliente de Telemetria (TCP)
     thread_ts = threading.Thread(
         target=run_telemetry_stream,
         name=f"Telemetry-{ROVER_ID}",
-        args=(g_rover_state, g_state_lock)
+        args=(g_rover_state, g_state_lock),
+        daemon=True
     )
 
-    # Thread 2: Cliente de Mission Link (UDP)
     # thread_ml = threading.Thread(
     #     target=run_mission_link,
     #     name=f"MissionLink-{ROVER_ID}",
     #     args=(g_rover_state, g_state_lock)
     # )
 
+    thread_phys = threading.Thread(
+        target=run_physics_simulator,
+        name=f"Physics-{ROVER_ID}",
+        args=(g_rover_state, g_state_lock),
+        daemon=True
+    )
+
     thread_ts.start()
+    thread_phys.start()
     # thread_ml.start() 
 
-    logging.info("[Main] Serviço de Telemetria lançado.")
+    logging.info("[Main] Serviço de Telemetria e Física lançados.")
 
-    # --- 6. Manter a Thread Principal Viva ---
-    # (Sem a física, apenas esperamos pela thread de telemetria)
     try:
         thread_ts.join()
+        thread_phys.join()
         # thread_ml.join()
     except KeyboardInterrupt:
         logging.info("[Main] A desligar Rover (Ctrl+C)...")

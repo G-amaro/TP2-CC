@@ -42,8 +42,11 @@ def run_telemetry_stream(state, lock):
                 pos_x_str = f"{x:.1f}".rjust(POS_W)
                 pos_y_str = f"{y:.1f}".rjust(POS_W)
                 bat_str = f"{st['bateria']:.1f}".rjust(BAT_W)
-                est_str = str(st["estado_op"]).ljust(STATE_W)
                 
+                estado_raw = str(st["estado_op"])
+                estado_truncado = estado_raw[:STATE_W] 
+                est_str = estado_truncado.ljust(STATE_W)
+             
                 missao_raw = st.get("missao_atual")
                 if missao_raw is None: missao_raw = "Nenhuma"
                 miss_str = str(missao_raw).ljust(MISSION_W)
@@ -54,6 +57,7 @@ def run_telemetry_stream(state, lock):
 
                 if len(msg_bytes) != TOTAL_MSG_SIZE:
                     log.error(f"Erro tamanho mensagem: tem {len(msg_bytes)}, esperava {TOTAL_MSG_SIZE}")
+                    # Este erro não deve mais ocorrer com a correção acima.
 
                 sock.sendall(msg_bytes)
                 log.info(f"Enviado: ID={id_str}|Pos=({pos_x_str},{pos_y_str})|Bat={bat_str}|Est={est_str.strip()}|Mis={miss_str.strip()}")
