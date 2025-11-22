@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # thread_ml = threading.Thread(
     #     target=run_mission_link,
     #     name=f"MissionLink-{ROVER_ID}",
-    #     args=(g_rover_state, g_state_lock)
+    #     args=(g_rover_state, g_state_lock, ROVER_ID)
     # )
 
     # --- 5. Lançar os Serviços ---
