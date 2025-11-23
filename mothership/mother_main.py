@@ -3,10 +3,12 @@ import logging
 import time
 import sys
 import os
-import shutil 
+import shutil
 
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
+from mission_link_server import run_mission_link_mother
+# from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
@@ -20,7 +22,7 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)]
 )
 
-# --- Estado Partilhado ---
+
 g_telemetry_database = {}
 g_telemetry_lock = threading.Lock()
 # g_rovers_info_lock = threading.Lock()
@@ -58,16 +60,16 @@ if __name__ == "__main__":
         daemon = True
     )
 
-    # thread_ml = threading.Thread(
-    #     target=mission_link,
-    #     name="Mission Link-UDP",
-    #     args=(),
-    #     daemon=True
-    # )
+    thread_ml = threading.Thread(
+        target=run_mission_link_mother,
+        name="Mission_Link-UDP",
+        args=(g_telemetry_database, g_telemetry_lock),
+        daemon=True
+    )
 
     thread_sync.start()
     thread_ts.start()
-    # thread_ml.start()
+    thread_ml.start()
     # thread_api.start()
 
     logging.info("[Main] Serviço lançado.")

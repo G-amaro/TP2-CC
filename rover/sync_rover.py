@@ -47,7 +47,7 @@ def sync(rover_id):
         try:
 
             data, addr = sock.recvfrom(32)
-            print("rover "+ rover_id + " recebeu: {}".format(data))
+            logging.debug(f"Sync Rover {rover_id} recebeu dados raw: {data}")
 
 
             response_data= data.decode('utf-8') # Exemplo de output possivel "A01" A = ack e 01 = possivel id do rover

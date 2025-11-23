@@ -7,8 +7,8 @@ import random
 
 from telemetry_client import run_telemetry_stream
 from sync_rover import sync
-# from mission_link_client import run_mission_link, do_rover_sync 
-from physics_simulator import run_physics_simulator             
+from mission_link_client import run_mission_link_rover
+from physics_simulator import run_physics_simulator             # <<< COMENTADO
 
 
 file_dir = os.path.dirname(__file__)
@@ -36,20 +36,20 @@ g_rover_state = {
 g_state_lock = threading.Lock()
 
 if __name__ == "__main__":
-    
+
     if len(sys.argv) != 2:
         print("Erro: Forneça o <rover_id> como argumento.")
         sys.exit(1)
         
     ROVER_ID = sys.argv[1]
-    
+
     with g_state_lock:
         g_rover_state["rover_id"] = ROVER_ID
         g_rover_state["estado_op"] = "sync"
 
 
     logging.info("A simular Sincronização (UDP)...")
-    sync_success = sync(ROVER_ID) 
+    sync_success = sync(ROVER_ID)
     threading.current_thread().name = f"Main-{ROVER_ID}"
 
     if not sync_success:
@@ -68,11 +68,13 @@ if __name__ == "__main__":
         daemon=True
     )
 
-    # thread_ml = threading.Thread(
-    #     target=run_mission_link,
-    #     name=f"MissionLink-{ROVER_ID}",
-    #     args=(g_rover_state, g_state_lock)
-    # )
+    # Thread 2: Cliente de Mission Link (UDP)
+    thread_ml = threading.Thread(
+        target=run_mission_link_rover,
+        name=f"MissionLink-{ROVER_ID}",
+        args=(g_rover_state, g_state_lock, ROVER_ID),
+        daemon=True
+    )
 
     thread_phys = threading.Thread(
         target=run_physics_simulator,
@@ -83,14 +85,14 @@ if __name__ == "__main__":
 
     thread_ts.start()
     thread_phys.start()
-    # thread_ml.start() 
+    thread_ml.start()
 
     logging.info("[Main] Serviço de Telemetria e Física lançados.")
 
     try:
         thread_ts.join()
         thread_phys.join()
-        # thread_ml.join()
+        thread_ml.join()
     except KeyboardInterrupt:
         logging.info("[Main] A desligar Rover (Ctrl+C)...")
         sys.exit(0)

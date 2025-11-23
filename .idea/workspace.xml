@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/info/completed_missions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/info/missions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/mission_link.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logs/recorder.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/recorder.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/mother_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mother_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/mission_link_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/mission_link_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rover/rover_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/rover_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
     </list>
@@ -36,24 +38,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/gongas/Desktop/TP2-CC&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.mission_link_client.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging main",
+    "last_opened_file_path": "/home/gongas/Desktop/TP2-CC",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/info" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -83,10 +87,19 @@
       <workItem from="1763223485925" duration="3679000" />
       <workItem from="1763249952200" duration="1747000" />
       <workItem from="1763505770073" duration="7478000" />
+      <workItem from="1763570349667" duration="442000" />
+      <workItem from="1763717453015" duration="3613000" />
+      <workItem from="1763821950025" duration="13530000" />
+      <workItem from="1763850220588" duration="4949000" />
+      <workItem from="1763895078421" duration="12256000" />
+      <workItem from="1763932311557" duration="7426000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/TP2_CC$mission_link_client.coverage" NAME="mission_link_client Coverage Results" MODIFIED="1763822508872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/rover" />
   </component>
 </project>
