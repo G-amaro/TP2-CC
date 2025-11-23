@@ -44,7 +44,7 @@ def sync():
                 info = False
 
                 for r in dados:
-                    if r["id"] == answer_id_rover: #info ja existe (atualizar info)
+                    if int(r["id"]) == int(answer_id_rover): #info ja existe (atualizar info)
                         r["IP"]   = addr[0]
                         r["port"] = addr[1]
                         info = True

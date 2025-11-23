@@ -5,14 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/info/completed_missions.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/info/missions.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/missions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/completed_missions.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/completed_missions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logs/recorder.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/recorder.log" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/mission_link_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mission_link_server.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/mother_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mother_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/telemetry_data/rover_2_history.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rover/mission_link_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/mission_link_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rover/rover_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/rover_main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/mission_link.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/mission_link.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,6 +94,7 @@
       <workItem from="1763821950025" duration="13530000" />
       <workItem from="1763850220588" duration="4949000" />
       <workItem from="1763895078421" duration="12256000" />
+      <workItem from="1763932311557" duration="7426000" />
     </task>
     <servers />
   </component>

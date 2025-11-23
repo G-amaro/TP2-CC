@@ -10,7 +10,7 @@ import random
 # --- Importar as FUNÇÕES de serviço ---
 from telemetry_client import run_telemetry_stream
 from sync_rover import sync
-# from mission_link_client import run_mission_link, do_rover_sync # <<< COMENTADO
+from mission_link_client import run_mission_link_rover
 # from physics_simulator import run_physics_simulator             # <<< COMENTADO
 
 
@@ -79,15 +79,15 @@ if __name__ == "__main__":
     )
 
     # Thread 2: Cliente de Mission Link (UDP)
-    # thread_ml = threading.Thread(
-    #     target=run_mission_link_rover,
-    #     name=f"MissionLink-{ROVER_ID}",
-    #     args=(g_rover_state, g_state_lock, ROVER_ID)
-    # )
+    thread_ml = threading.Thread(
+        target=run_mission_link_rover,
+        name=f"MissionLink-{ROVER_ID}",
+        args=(g_rover_state, g_state_lock, ROVER_ID)
+    )
 
     # --- 5. Lançar os Serviços ---
     thread_ts.start()
-    # thread_ml.start() # <<< COMENTADO
+    thread_ml.start()
 
     logging.info("[Main] Serviço de Telemetria lançado.")
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # (Sem a física, apenas esperamos pela thread de telemetria)
     try:
         thread_ts.join()
-        # thread_ml.join()
+        thread_ml.join()
     except KeyboardInterrupt:
         logging.info("[Main] A desligar Rover (Ctrl+C)...")
         sys.exit(0)

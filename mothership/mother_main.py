@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     thread_sync.start()
     thread_ts.start()
-    # thread_ml.start()
+    thread_ml.start()
     # thread_api.start()
 
     logging.info("[Main] Serviço lançado.")
