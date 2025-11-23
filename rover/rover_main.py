@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # Thread 2: Cliente de Mission Link (UDP)
     # thread_ml = threading.Thread(
-    #     target=run_mission_link,
+    #     target=run_mission_link_rover,
     #     name=f"MissionLink-{ROVER_ID}",
     #     args=(g_rover_state, g_state_lock, ROVER_ID)
     # )

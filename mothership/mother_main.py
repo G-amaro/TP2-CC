@@ -10,7 +10,7 @@ import shutil # Biblioteca para apagar pastas/ficheiros
 # --- Importar as FUNÇÕES de serviço ---
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
-# from mission_link_server import run_mission_link_server
+from mission_link_server import run_mission_link_mother
 # from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
@@ -25,7 +25,7 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)]
 )
 
-# --- Estado Partilhado ---
+
 g_telemetry_database = {}
 g_telemetry_lock = threading.Lock()
 # g_rovers_info_lock = threading.Lock()
@@ -61,6 +61,13 @@ if __name__ == "__main__":
         name="Telemetry-TCP",
         args=(g_telemetry_database, g_telemetry_lock),
         daemon = True
+    )
+
+    thread_ml = threading.Thread(
+        target=run_mission_link_mother,
+        name="Mission_Link-UDP",
+        args=(g_telemetry_database, g_telemetry_lock),
+        daemon=True
     )
 
     thread_sync.start()

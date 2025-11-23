@@ -16,13 +16,13 @@ W_PAYLOAD_SIZE = 3
 W_HEADER_TOTAL = W_ID + W_SEQ + W_ACK + W_MSQ_TYPE + W_TIME + W_PAYLOAD_SIZE
 
 
-
+#############################################
 W_M_ID = 4
 W_M_TASK = 1
 W_M_XYZ = 3 #(3 each)
 W_M_DUR = 5
 W_M_REP = 3
-W_M_BAT = 3
+W_M_BAT = 5
 
 
 #missao de captura de imagens
@@ -34,31 +34,56 @@ W_M_IMG_DIR = 1
 W_M_SOL_PROF = 5
 W_M_SOL_WGHT = 4
 
+####################################################
+#Report byte number
+W_R_ID =4
+W_R_PROG = 3
+W_R_TASK = 1
+
+#imagens
+W_R_I_QTY = 2
+W_R_I_NAME = 20
+
+#atmosfera
+W_R_A_TEMP = 6
+W_R_A_GAS = 3
+
+#solo
+W_R_S_ID = 4
+W_R_S_WGHT = 4
+W_R_S_PROF = 5
+
 TASK_CODES = {
     "captura_imagens": "I" ,
      "coleta_amostras_solo": "S",
     "analise_atmosferica": "A"
 }
 
-def header_builder(rover_id, seq, ack_seq, message_type, payload_bytes):
+CODES_TO_TASK = {v: k for k, v in TASK_CODES.items()}
+
+
+def header_builder(rover_id, seq, ack_seq, message_type, payload_input):
 
 
     payload= None
-    if not isinstance(payload_bytes, bytes):
-        payload = str(payload_bytes.encode('utf-8'))
+    if  isinstance(payload_input, str):
+        payload = payload_input.encode('utf-8')
+    elif isinstance(payload_input, bytes):
+        payload = payload_input
+
 
     payload_size = len(payload)
     mh_rover_id = str(rover_id).zfill(W_ID)
     mh_seq = str(seq).zfill(W_SEQ)
     mh_ack_seq = str(ack_seq).zfill(W_ACK)
-    mh_message_type = str(message_type)            #.ljust(W_MSQ_TYPE) não deve ser preciso.
+    mh_message_type = str(message_type)
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     mh_payload_size = str(payload_size).zfill(W_PAYLOAD_SIZE)
 
 
-    mission_header = mh_rover_id + mh_seq + mh_ack_seq +  mh_message_type + timestamp + mh_payload_size + payload
+    mission_header = mh_rover_id + mh_seq + mh_ack_seq +  mh_message_type + timestamp + mh_payload_size
 
-    return mission_header.encode('utf-8')
+    return mission_header.encode('utf-8') + payload
 
 
 def header_parser(message):
@@ -119,13 +144,20 @@ def mission_packer(mission):
         coords = mission['coordenadas']
         m_x = str(coords['x']).zfill(W_M_XYZ)
         m_y = str(coords['y']).zfill(W_M_XYZ)
-        m_z = str(coords['z']).zfill(W_M_XYZ)
 
         m_dur = str(mission['duracao_max_segundos']).zfill(W_M_DUR)
         m_rep = str(mission['report_intervalo_segundos']).zfill(W_M_REP)
-        m_bat = str(mission['bat_min_prevista']).zfill(W_M_BAT)
 
-        header = m_id + m_task + m_x + m_y + m_z + m_dur + m_rep + m_bat
+        bat_val = float(mission.get('bateria_min_prevista', 0.0))
+
+        m_bat = f"{bat_val:05.1f}"
+
+        if len(m_bat) > W_M_BAT:
+            m_bat = "100.0"
+
+
+
+        header = m_id + m_task + m_x + m_y + m_dur + m_rep + m_bat
 
 
 
@@ -172,8 +204,6 @@ def mission_parser(mission_bytes):
         cursor += W_M_XYZ
         r_y = mission[cursor : cursor + W_M_XYZ]
         cursor += W_M_XYZ
-        r_z = mission[cursor : cursor + W_M_XYZ]
-        cursor += W_M_XYZ
         r_dur = mission[cursor : cursor + W_M_DUR]
         cursor += W_M_DUR
         r_rep = mission[cursor : cursor + W_M_REP]
@@ -183,11 +213,11 @@ def mission_parser(mission_bytes):
 
         mission_dic = {
             "id_missao": int(r_id),
-            "tarefa": r_task_code,
-            "coordenadas": {"x": int(r_x), "y": int(r_y), "z": int(r_z)},
+            "tarefa": CODES_TO_TASK.get(r_task_code, "desconhecida"),
+            "coordenadas": {"x": int(r_x), "y": int(r_y)},
             "duracao_max_segundos": int(r_dur),
             "report_intervalo_segundos": int(r_rep),
-            "bat_min_prevista": int(r_bat),
+            "bat_min_prevista": float(r_bat),
             "parametros_tarefa": {}
         }
 
@@ -216,4 +246,130 @@ def mission_parser(mission_bytes):
         return mission_dic
     except Exception as e:
         #log de erro
+        return None
+
+def report_packer(report_dict):
+    try:
+        r_id = str(report_dict['id_missao']).zfill(W_R_ID)
+        r_prog = str(report_dict['progress']).zfill(W_R_PROG)
+
+        task_name = report_dict['tarefa']
+        r_task = TASK_CODES.get(task_name, "X")
+
+        header = r_id  + r_prog + r_task
+        params = ""
+
+        if r_task == "I":
+            lista = report_dict.get('imagens', [])
+            qtd = len(lista)
+
+            if qtd > 3: qtd = 3
+
+            p_qtd = str(qtd).zfill(W_R_I_QTY)
+
+            slots = ""
+            for i in range(3):
+                if i < qtd:
+                    nome = str(lista[i])[:W_R_I_NAME].ljust(W_R_I_NAME)
+                else:
+                    nome = " " * W_R_I_NAME # vazio
+
+                slots += nome
+
+            params = p_qtd + slots
+
+        elif r_task == "A":
+            temp_val = float(report_dict.get('temperatura',0))
+            p_temp = f"{temp_val:06.2f}"
+
+            comp = report_dict.get('composicao', {})
+            p_co2 = str(comp.get('co2', 0)).zfill(W_R_A_GAS)
+            p_o2  = str(comp.get('o2', 0)).zfill(W_R_A_GAS)
+            p_n2  = str(comp.get('n2', 0)).zfill(W_R_A_GAS)
+
+            params = p_temp + p_co2 + p_o2 + p_n2
+
+        elif r_task == "S":
+            p_id = str(report_dict.get('id_amostra',0)).zfill(W_R_S_ID)
+            p_peso = str(report_dict.get('peso',0)).zfill(W_R_S_WGHT)
+
+            prof = float(report_dict.get('profundidade',0))
+            p_prof = f"{prof:05.1f}"
+
+            params = p_id + p_peso + p_prof
+
+        return (header + params).encode('utf-8')
+    except Exception as e:
+        #logging.error()
+        return None
+
+
+def report_parser(data_bytes):
+    try:
+        if not data_bytes: return None
+        data_str = data_bytes.decode('utf-8')
+        cursor = 0
+
+        r_id = data_str[cursor : cursor + W_R_ID]
+        cursor += W_R_ID
+        r_prog = data_str[cursor : cursor + W_R_PROG]
+        cursor += W_R_PROG
+        r_task = data_str[cursor : cursor + W_R_TASK]
+        cursor += W_R_TASK
+
+        task_name = CODES_TO_TASK.get(r_task, "desconhecida")
+
+        report = {
+            "id_missao": int(r_id),
+            "tarefa": task_name,
+            "progress": int(r_prog)
+        }
+
+        if r_task == "I":
+            qtd = int(data_str[cursor : cursor + W_R_I_QTY])
+            cursor += W_R_I_QTY
+            lista_imgs = []
+
+            for _ in range(3):
+                raw_name =data_str[cursor : cursor + W_R_I_NAME]
+                cursor += W_R_I_NAME
+                clean_name =raw_name.strip()
+                if clean_name:
+                    lista_imgs.append(clean_name)
+
+            report["imagens"] = lista_imgs[:qtd]
+
+        elif r_task == "A":
+            p_temp = data_str[cursor : cursor + W_R_A_TEMP]
+            cursor += W_R_A_TEMP
+
+            p_co2 = data_str[cursor : cursor + W_R_A_GAS]
+            cursor += W_R_A_GAS
+            p_o2 = data_str[cursor : cursor + W_R_A_GAS]
+            cursor += W_R_A_GAS
+            p_n2 = data_str[cursor : cursor + W_R_A_GAS]
+            cursor += W_R_A_GAS
+
+            report["temperatura"] = float(p_temp)
+            report["composicao"] = {
+                "co2": int(p_co2),
+                "o2": int(p_o2),
+                "n2": int(p_n2)
+            }
+
+        elif r_task == "S":
+            p_id = data_str[cursor : cursor + W_R_S_ID]
+            cursor += W_R_S_ID
+            p_peso = data_str[cursor : cursor + W_R_S_WGHT]
+            cursor += W_R_S_WGHT
+            p_prof = data_str[cursor : cursor + W_R_S_PROF]
+            cursor += W_R_S_PROF
+
+            report["id_amostra"] = int(p_id)
+            report["peso"] = int(p_peso)
+            report["profundidade"] = float(p_prof)
+
+        return report
+    except Exception as e:
+        #logs
         return None

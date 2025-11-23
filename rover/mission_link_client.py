@@ -1,17 +1,18 @@
-
+import time
 from datetime import datetime
 import socket
 import logging
 import sys
 import os
+import random
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.mission_link import header_builder, header_parser
+from utils.mission_link import header_builder,header_parser,  mission_parser, report_packer
 
 ML_PORT = 50001
 MOTHER_IP = '10.0.2.20'
 
-def  run_mission_link(state, lock, rover_id):
+def  run_mission_link_rover(state, lock, rover_id):
 
     seq = 1
     ack_seq = 0
@@ -21,17 +22,21 @@ def  run_mission_link(state, lock, rover_id):
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(('0.0.0.0', 0))
 
-    ack = message_to_mother(rover_id, seq, ack_seq, "MReq", "", sock)
-    if not ack :
-        sock.close()
-        return
-    elif ack == True :
-        pass
-        seq += 1
-    else :
-        payload = ack
-        seq += 1
-        execute_mission(payload, rover_id, seq, lock, state)
+    while True:
+
+        if state['estado_op']=="idle":
+            resposta = message_to_mother(rover_id, seq, ack_seq, "MReq", "", sock)
+            if resposta is None:
+                time.sleep(5)
+                continue
+
+            elif resposta is True :
+
+                seq += 1
+                time.sleep(10)
+            else :
+                seq += 1
+                execute_mission(resposta, rover_id, seq, lock, state, sock)
 
 
 
@@ -70,12 +75,116 @@ def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
 
 
         except socket.timeout:
-            sock.settimeout(timesleep)
+            time.sleep(timesleep)
             timesleep *= 2
 
     return False
 
 
-def execute_mission(payload,  rover_id, seq, lock, state):
+def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
-    j=0
+    mission_data = mission_parser(payload_bytes)
+
+    if not mission_data:
+        print("nao consegui ler o payload da missao")
+        return seq
+
+    with lock:
+        state['missao_atual'] = mission_data
+        state['estado_op'] = "em_missao"
+
+    tarefa = mission_data['tarefa']
+    m_id = mission_data['id_missao']
+    intervalo = mission_data['report_intervalo_segundos']
+    duracao = mission_data['duracao_max_segundos']
+
+    n_relatorios = round(duracao/intervalo)
+
+    processo = 0
+    step = round(100/n_relatorios)
+
+    while processo < 85: #para nao interferir com o relatorio final
+
+        time.sleep(intervalo)
+        processo += step
+
+        dados_fake = generate_simulated_data(tarefa)
+
+        report_dict = {
+            "id_missao": m_id,
+            "progress": processo,
+            "tarefa": tarefa,
+            **dados_fake
+        }
+
+        report_bytes = report_packer(report_dict)
+
+        if report_bytes:
+
+            ack = message_to_mother(rover_id, seq, 0, "MRep", report_bytes, sock)
+
+            if ack:
+                seq += 1
+
+            else:
+
+                with lock: state["estado_op"] = "erro"
+                return seq
+
+
+    time.sleep(intervalo)
+
+    dados_finais = generate_simulated_data(tarefa)
+
+    final_dict = {
+        "id_missao": m_id,
+        "progress": 100,
+        "tarefa": tarefa,
+        **dados_finais
+    }
+
+    final_bytes = report_packer(final_dict)
+
+    if final_bytes:
+
+        ack_conc = message_to_mother(rover_id, seq, 0, "MCon", final_bytes, sock)
+
+        if ack_conc:
+
+            seq += 1
+
+    with lock:
+        state["estado_op"] = "idle"
+        state["missao_atual"] = None
+
+    return seq
+
+
+
+
+def generate_simulated_data(tarefa):
+    dados = {}
+
+    if tarefa == "captura_imagens":
+        qtd = random.randint(1,3)
+        lista = []
+        for i in range(qtd):
+            nome = f"img_{random.randint(10,99)}_{i}.png"
+            lista.append(nome)
+
+        dados["imagens"] = lista
+
+    elif tarefa == "analise_atmosferica":
+        dados['temperatura'] = round(random.uniform(-80.0,-10.0), 2)
+        dados['composicao'] = {
+            "co2" : random.randint(90,98),
+            "o2": random.randint(0,5),
+            "n2" : random.randint(1,5)
+        }
+
+    elif tarefa == "coleta_amostras_solo":
+        dados['id_amostra'] = random.randint(1000, 9999)
+        dados['peso'] = random.randint(100,900)
+        dados['profundidade'] = round(random.uniform(5.0,30.0),1)
+
+    return dados
