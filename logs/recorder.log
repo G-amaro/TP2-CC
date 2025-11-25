@@ -1,0 +1,51 @@
+2025-11-25 13:05:13,559 - MainThread - INFO - [Main] A arrancar Nave-Mãe (Modo Teste)...
+2025-11-25 13:05:13,561 - Telemetry-TCP - INFO - Servidor Telemetria à escuta na porta 50010
+2025-11-25 13:05:13,562 - MainThread - INFO - [Main] Serviço lançado.
+2025-11-25 13:05:13,562 - Mission_Link-UDP Mother - INFO - Carregadas 10 missoes do ficheiro 'missions.json'
+2025-11-25 13:05:13,564 - Mission_Link-UDP Mother - INFO - ficheiro 'completed_missions.json' criado com sucesso
+2025-11-25 13:05:13,564 - Mission_Link-UDP Mother - INFO - Servidor Mission Link inicializado com sucesso
+2025-11-25 13:05:15,434 - Sync - INFO - Rover 02 (10.0.0.20:58137) -> Nave Mae: sync request
+2025-11-25 13:05:15,442 - Thread-1 (handle_rover_telemetry) - INFO - Handler iniciado para ('10.0.0.20', 60630)
+2025-11-25 13:05:15,442 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(47.3,71.0) Bat(100.0%) Est(parado)
+2025-11-25 13:05:15,443 - Mission_Link-UDP Mother - INFO - Novo Rover detetado no Mission Link: ID 2
+2025-11-25 13:05:15,443 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Mission Request recebido. A verificar condições...
+2025-11-25 13:05:15,444 - Mission_Link-UDP Mother - INFO - Nave Mae: Missao 1 atribuida a Rover 2.
+2025-11-25 13:05:20,448 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(35.5,54.9) Bat(97.5%) Est(a_caminho)
+2025-11-25 13:05:25,453 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(20.8,34.7) Bat(95.0%) Est(a_caminho)
+2025-11-25 13:05:30,458 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(92.5%) Est(em_missao)
+2025-11-25 13:05:35,463 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(90.0%) Est(em_missao)
+2025-11-25 13:05:37,467 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 17% da missao 1
+2025-11-25 13:05:40,468 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(87.5%) Est(em_missao)
+2025-11-25 13:05:45,474 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(85.0%) Est(em_missao)
+2025-11-25 13:05:47,481 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 34% da missao 1
+2025-11-25 13:05:50,479 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(82.5%) Est(em_missao)
+2025-11-25 13:05:55,484 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(80.0%) Est(em_missao)
+2025-11-25 13:05:57,493 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 51% da missao 1
+2025-11-25 13:06:00,490 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(77.5%) Est(em_missao)
+2025-11-25 13:06:05,496 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(75.0%) Est(em_missao)
+2025-11-25 13:06:07,504 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 68% da missao 1
+2025-11-25 13:06:10,501 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(72.5%) Est(em_missao)
+2025-11-25 13:06:15,506 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(70.0%) Est(em_missao)
+2025-11-25 13:06:17,517 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 85% da missao 1
+2025-11-25 13:06:20,512 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(67.5%) Est(em_missao)
+2025-11-25 13:06:25,517 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(65.0%) Est(em_missao)
+2025-11-25 13:06:27,528 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório 102% da missao 1
+2025-11-25 13:06:30,523 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(62.5%) Est(em_missao)
+2025-11-25 13:06:35,529 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(60.0%) Est(em_missao)
+2025-11-25 13:06:37,532 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Relatório Final da missao 1
+2025-11-25 13:06:37,533 - Mission_Link-UDP Mother - INFO - Mission 1 save complete
+2025-11-25 13:06:40,534 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(11.9,22.6) Bat(58.4%) Est(parado)
+2025-11-25 13:06:42,540 - Mission_Link-UDP Mother - INFO - Rover 2 -> Nave Mae: Mission Request recebido. A verificar condições...
+2025-11-25 13:06:42,541 - Mission_Link-UDP Mother - INFO - Nave Mae: Missao 3 atribuida a Rover 2.
+2025-11-25 13:06:45,540 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(21.8,21.0) Bat(56.5%) Est(a_caminho)
+2025-11-25 13:06:50,543 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 2: Pos(46.5,17.0) Bat(54.0%) Est(a_caminho)
+is=1
+2025-11-25 13:06:37,531 - MissionLink-2 - INFO - A enviar Conclusão 100% (Seq 8)...
+2025-11-25 13:06:37,533 - MissionLink-2 - INFO - Missao concluida e confirmada pela Mae!
+2025-11-25 13:06:37,534 - MissionLink-2 - INFO - a esperar 5 segundos para a Mae ter a telemetria atualizada...
+2025-11-25 13:06:40,534 - Telemetry-2 - INFO - Enviado: ID= 2|Pos=( 11.9, 22.6)|Bat= 58.4|Est=parado|Mis=Nenhuma
+2025-11-25 13:06:42,539 - MissionLink-2 - INFO - A pedir missao (Seq 9)...
+2025-11-25 13:06:42,541 - MissionLink-2 - INFO - A viajar de (11.9, 22.6) para (90.0, 10.0)...
+2025-11-25 13:06:45,540 - Telemetry-2 - INFO - Enviado: ID= 2|Pos=( 21.8, 21.0)|Bat= 56.5|Est=a_caminho|Mis=3
+2025-11-25 13:06:50,543 - Telemetry-2 - INFO - Enviado: ID= 2|Pos=( 46.5, 17.0)|Bat= 54.0|Est=a_caminho|Mis=3
+2025-11-25 13:06:55,548 - Telemetry-2 - INFO - Enviado: ID= 2|Pos=( 71.1, 13.0)|Bat= 51.5|Est=a_caminho|Mis=3

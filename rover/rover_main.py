@@ -30,7 +30,7 @@ g_rover_state = {
     "rover_id": None,
     "posicao": (random.uniform(0, 100), random.uniform(0, 100)),
     "bateria": 100.0,
-    "estado_op": "idle",
+    "estado_op": "parado",
     "missao_atual": None
 }
 g_state_lock = threading.Lock()

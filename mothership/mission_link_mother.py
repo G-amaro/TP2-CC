@@ -3,11 +3,12 @@ import os
 import socket
 import json
 import logging
-import threading
 from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from utils.mission_link import header_builder, header_parser,  mission_packer, report_parser, report_packer
+from utils.mission_link import header_builder, header_parser,  mission_packer, report_parser
+from rover.physics_simulator import RATE_MISSION
+
 
 ML_PORT=50001
 
@@ -17,8 +18,13 @@ def save_mission_complete(payload_dict):
 
     history = []
     if os.path.exists(json_file):
-        with open(json_file, 'r') as f:
-            history = json.load(f)
+        try:
+            if os.stat(json_file).st_size > 0:
+                with open(json_file, 'r') as f:
+                    history = json.load(f)
+        except Exception as e:
+            logging.warning(f"Erro ao ler completed_missions.json: {e}")
+            history = []
 
     payload_dict["received_at"] = str (datetime.now())
     history.append(payload_dict)
@@ -30,16 +36,23 @@ def save_mission_complete(payload_dict):
 
 
 def run_mission_link_mother(status_db, lock_status):
-    threading.current_thread().name = f"Mission Link Mother"
 
     file_dir = os.path.dirname(__file__)
-    json_path = os.path.join(file_dir, "../info/missions.json")
+    json_missions_path = os.path.join(file_dir, "../info/missions.json")
+    json_completed_missions_path = os.path.join(file_dir, "../info/completed_missions.json")
 
-    if os.path.exists(json_path):
-        with open(json_path, 'r') as f:
+    #opens mission.json
+    if os.path.exists(json_missions_path):
+        with open(json_missions_path, 'r') as f:
             missions = json.load(f)
-
     logging.info(f"Carregadas {len(missions)} missoes do ficheiro 'missions.json'")
+
+    #opens or creates completed_missions.json
+
+    with open(json_completed_missions_path, 'w') as f:
+        json.dump([], f)
+    logging.info("ficheiro 'completed_missions.json' criado com sucesso")
+
 
     reliability_db = {}
 
@@ -92,49 +105,58 @@ def run_mission_link_mother(status_db, lock_status):
 
                     if rover_status is None:
                         logging.info(f"Nave Mae: Mission Request ignorado: sem dados de telemetria de Rover {rover_id}.")
-                        continue
-
-                    selected_mission =None
-
-                    bat_atual=float(rover_status.get('bateria',0))
-                    estado_atual = rover_status.get('estado', 'parado').strip()
-
-                    if bat_atual > 25 and estado_atual == "parado":
-                        for mission in missions[:]:
-                            custo = mission.get('bateria_min_prevista', 0)
-
-                            if rover_status['bateria'] - custo > 15:
-                                selected_mission = mission
-                                missions.remove(mission)
-                                break
+                        response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
 
                     else:
-                        logging.info(f"Nave Mae: Rover {rover_id} não elegível (Bat: {bat_atual}%, Est: {estado_atual})")
+                        selected_mission =None
 
-                    if selected_mission:
-                        logging.info(f"Nave Mae: Missao {selected_mission['id_missao']} atribuida a Rover {rover_id}.")
-                        mission_bytes = mission_packer(selected_mission)
-                        if mission_bytes:
+                        bat_atual=float(rover_status.get('bateria',0))
+                        estado_atual = rover_status.get('estado', 'parado').strip()
 
-                            response_packet = header_builder(rover_id, my_seq, seq_recebido, "MHan", mission_bytes)
+                        if bat_atual > 20 and estado_atual == "parado":
+                            for mission in missions[:]:
+                                duracao = mission.get('duracao_max_segundos', 0)
+                                custo = (duracao * RATE_MISSION) + 10 # 10 é a margem de deslocação e segurança
+                                mission['bateria_min_prevista'] = float(custo)
+
+                                if rover_status['bateria'] - custo > 10:
+                                    selected_mission = mission
+                                    missions.remove(mission)
+                                    break
+
+                        else:
+                            logging.info(f"Nave Mae: Rover {rover_id} não elegível (Bat: {bat_atual}%, Est: {estado_atual})")
+
+                        if selected_mission:
+                            logging.info(f"Nave Mae: Missao {selected_mission['id_missao']} atribuida a Rover {rover_id}.")
+                            mission_bytes = mission_packer(selected_mission)
+                            if mission_bytes:
+
+                                response_packet = header_builder(rover_id, my_seq, seq_recebido, "MHan", mission_bytes)
 
 
-                    else:
-                        logging.info(f"Nenhuma missao atribuida a Rover {rover_id}. (Buffer vazio ou bateria insuficiente)")
+                        else:
+                            logging.info(f"Nenhuma missao atribuida a Rover {rover_id}. (Buffer vazio ou bateria insuficiente)")
+                            response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
 
 
                 elif msg_type == "MRep":
+
                     relatorio = report_parser(message['payload'])
                     if relatorio:
-                        logging.info(f"Rover {rover_id} -> Nave Mae: Relatório {relatorio.get('progress')} da missao {relatorio.get('id_missao')}")
+                        logging.info(f"Rover {rover_id} -> Nave Mae: Relatório {relatorio.get('progress')}% da missao {relatorio.get('id_missao')}")
 
                     response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "") #acks simples nao ttêm seq numero, logo é 0
+
                 elif msg_type == "MCon":
+
                     relatorio_final= report_parser(message['payload'])
                     if relatorio_final:
                         logging.info(f"Rover {rover_id} -> Nave Mae: Relatório Final da missao {relatorio_final.get('id_missao')}")
-                        save_mission_complete(relatorio_final)
-
+                        try:
+                            save_mission_complete(relatorio_final)
+                        except Exception as e:
+                            logging.error(f"ERRO: erro ao guardar relatorio final: {e}")
                     response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "" )
                 elif msg_type == "MAck":
                     logging.debug(f"Rover {rover_id} -> Nave Mae: Ack recebido do Rover {rover_id}")
@@ -142,10 +164,12 @@ def run_mission_link_mother(status_db, lock_status):
 
 
                 elif msg_type == "Err":
+
                     logging.error(f"ERRO reportado pelo rover {rover_id}")
                     response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "")
 
                 if response_packet:
+
                     sock.sendto(response_packet, addr)
 
                     reliability_db[rover_id]= {

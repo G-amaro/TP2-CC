@@ -5,7 +5,7 @@
         "coordenadas": {"x": 10, "y": 20, "z": 0},
         "duracao_max_segundos": 60,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 5.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "num_fotos": 3,
             "direcao": "N"
@@ -17,7 +17,7 @@
         "coordenadas": {"x": 55, "y": 60, "z": 0},
         "duracao_max_segundos": 120,
         "report_intervalo_segundos": 20,
-        "bateria_min_prevista": 15.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "profundidade_alvo_cm": 15.0,
             "peso_alvo_gramas": 500
@@ -29,7 +29,7 @@
         "coordenadas": {"x": 90, "y": 10},
         "duracao_max_segundos": 45,
         "report_intervalo_segundos": 15,
-        "bateria_min_prevista": 8.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {}
     },
     {
@@ -38,7 +38,7 @@
         "coordenadas": {"x": 25, "y": 25},
         "duracao_max_segundos": 40,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 4.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "num_fotos": 1,
             "direcao": "S"
@@ -50,7 +50,7 @@
         "coordenadas": {"x": 80, "y": 80},
         "duracao_max_segundos": 90,
         "report_intervalo_segundos": 15,
-        "bateria_min_prevista": 12.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "profundidade_alvo_cm": 5.0,
             "peso_alvo_gramas": 100
@@ -62,7 +62,7 @@
         "coordenadas": {"x": 50, "y": 50},
         "duracao_max_segundos": 60,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 10.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {}
     },
     {
@@ -71,7 +71,7 @@
         "coordenadas": {"x": 5, "y": 95},
         "duracao_max_segundos": 50,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 6.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "num_fotos": 2,
             "direcao": "E"
@@ -83,7 +83,7 @@
         "coordenadas": {"x": 30, "y": 90},
         "duracao_max_segundos": 150,
         "report_intervalo_segundos": 30,
-        "bateria_min_prevista": 20.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "profundidade_alvo_cm": 30.0,
             "peso_alvo_gramas": 800
@@ -95,7 +95,7 @@
         "coordenadas": {"x": 15, "y": 85},
         "duracao_max_segundos": 30,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 5.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {}
     },
     {
@@ -104,7 +104,7 @@
         "coordenadas": {"x": 70, "y": 30},
         "duracao_max_segundos": 55,
         "report_intervalo_segundos": 10,
-        "bateria_min_prevista": 7.0,
+        "bateria_min_prevista": 0.0,
         "parametros_tarefa": {
             "num_fotos": 4,
             "direcao": "O"

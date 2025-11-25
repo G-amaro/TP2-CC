@@ -1,4 +1,4 @@
-
+import math
 import time
 import socket
 import logging
@@ -9,6 +9,9 @@ import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.mission_link import header_builder,header_parser,  mission_parser, report_packer
 
+
+ROVER_SPEED= 5.0
+UPDATE_RATE = 1.0
 ML_PORT = 50001
 MOTHER_IP = '10.0.2.20'
 
@@ -47,6 +50,9 @@ def  run_mission_link_rover(state, lock, rover_id):
                 seq += 1#se a mae mandar mission handle ela ja usa seq +1 logo, o seq tem que mudar logo para +2 no rover
                 seq = execute_mission(resposta, rover_id, seq, lock, state, sock)
 
+        else:
+            time.sleep(1)
+
 
 
 
@@ -74,10 +80,8 @@ def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
             #o rover só vai receber mission handle e ack
             if answer['ack_seq'] == seq:
 
-
                 if answer['message_type'] == "MAck":
                     return True
-
 
                 if answer['message_type'] == "MHan":
                     return answer['payload'] #o payload vai ser a missao
@@ -103,24 +107,51 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         logging.error("ERRO: nao consegui ler o payload da missao")
         return seq
 
-    with lock:
-        state['missao_atual'] = mission_data['id_missao']
-        state['estado_op'] = "em_missao"
+
 
     tarefa = mission_data['tarefa']
     m_id = mission_data['id_missao']
     intervalo = mission_data['report_intervalo_segundos']
     duracao = mission_data['duracao_max_segundos']
+    dest_x = mission_data['coordenadas']['x']
+    dest_y = mission_data['coordenadas']['y']
+
+    with lock:
+        state['missao_atual'] = m_id
+        state['estado_op'] = "a_caminho"
+
+    move_to_target(state, lock, dest_x, dest_y)
+
+    with lock:
+        state['estado_op'] = "em_missao"
 
     logging.info(f" ------------ A INICIAR MISSAO {m_id}: {tarefa} ---------------")
     logging.info(f"Duracao: {duracao} segundos | reportar a cada {intervalo} segundos")
 
-    n_relatorios = round(duracao/intervalo)
+    n_relatorios = max(1,round(duracao/intervalo))
 
     processo = 0
     step = round(100/n_relatorios)
 
-    while processo < 85: #para nao interferir com o relatorio final
+    while processo < 90: #para nao interferir com o relatorio final
+        current_state = ""
+        with lock:
+            current_state = state["estado_op"]
+
+        while True:
+            with lock:
+                current_state = state["estado_op"]
+            if current_state != "low_power_sleep":
+                with lock:
+                    state['estado_op'] = "em_missao"
+                break
+                #dorme e depois, quando tiver carregado, continua a missao
+
+            else:
+                logging.info(f"O rover vai pausar a missao e carregar(30s)!")
+                time.sleep(1)
+
+
 
         time.sleep(intervalo)
         processo += step
@@ -177,6 +208,8 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         state["estado_op"] = "parado"
         state["missao_atual"] = None
 
+    logging.info('a esperar 5 segundos para a Mae ter a telemetria atualizada...')
+    time.sleep(5)
     return seq
 
 
@@ -208,3 +241,40 @@ def generate_simulated_data(tarefa):
         dados['profundidade'] = round(random.uniform(5.0,30.0),1)
 
     return dados
+
+def move_to_target(state, lock, target_x, target_y):
+
+    with lock:
+        start_x, start_y = state['posicao']
+
+    logging.info(f"A viajar de ({start_x:.1f}, {start_y:.1f}) para ({target_x:.1f}, {target_y:.1f})...")
+
+    dx = target_x - start_x
+    dy = target_y - start_y
+    distance = math.hypot(dx, dy)
+
+    if distance < 0.1:
+        logging.info("Já chegou ao  local.")
+
+    step_distance = ROVER_SPEED * UPDATE_RATE
+
+    steps = int(distance / step_distance)
+    step_x = (dx / distance) * step_distance
+    step_y = (dy / distance) * step_distance
+
+    current_x, current_y = start_x, start_y
+
+    for _ in range(steps):
+        time.sleep(UPDATE_RATE)
+
+        current_x += step_x
+        current_y += step_y
+        with lock:
+            state['posicao'] = (current_x, current_y)
+            # Opcional: Gastar bateria por movimento
+            # state['bateria'] -= 0.1
+
+    with lock:
+        state['posicao'] = (current_x, current_y)
+
+    logging.info(f"Chegou ao destino")

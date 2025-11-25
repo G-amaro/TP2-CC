@@ -13,12 +13,14 @@ from mission_link_mother import run_mission_link_mother
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
 
+os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
 # --- Configuração de Logging ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_path, mode='a'),
+        logging.FileHandler(log_path, mode='w'),
         logging.StreamHandler(sys.stdout)]
 )
 
@@ -62,7 +64,7 @@ if __name__ == "__main__":
 
     thread_ml = threading.Thread(
         target=run_mission_link_mother,
-        name="Mission_Link-UDP",
+        name="Mission_Link-UDP Mother",
         args=(g_telemetry_database, g_telemetry_lock),
         daemon=True
     )
