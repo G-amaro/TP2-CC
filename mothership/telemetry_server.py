@@ -76,7 +76,7 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
                 
                 telemetry_data = {
                     "rover_id": r_id,
-                    "timestamp": time.time(),
+                    "last_seen": time.time(),
                     "posicao": (r_x, r_y),
                     "bateria": r_bat,
                     "estado": r_est,

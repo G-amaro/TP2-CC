@@ -8,7 +8,7 @@ import shutil
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
 from mission_link_mother import run_mission_link_mother
-# from api_server import run_api_server
+from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
@@ -69,10 +69,17 @@ if __name__ == "__main__":
         daemon=True
     )
 
+    thread_api = threading.Thread(
+        target=run_api_server,
+        name="API-HTTP",
+        args=(g_telemetry_database, g_telemetry_lock), 
+        daemon=True
+    )
+
     thread_sync.start()
     thread_ts.start()
     thread_ml.start()
-    # thread_api.start()
+    thread_api.start()
 
     logging.info("[Main] Serviço lançado.")
 
