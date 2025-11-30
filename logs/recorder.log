@@ -34,15 +34,3 @@
 2025-11-28 09:38:23,777 - Mission_Link-UDP Mother - INFO - Rover 1 -> Nave Mae: Relatório 102% da missao 1
 2025-11-28 09:38:25,758 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 1: Pos(12.0,21.1) Bat(63.0%) Est(em_missao)
 2025-11-28 09:38:30,763 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 1: Pos(12.0,21.1) Bat(60.5%) Est(em_missao)
-2025-11-28 09:38:33,788 - Mission_Link-UDP Mother - INFO - Rover 1 -> Nave Mae: Relatório Final da missao 1
-2025-11-28 09:38:33,789 - Mission_Link-UDP Mother - INFO - Mission 1 save complete
-2025-11-28 09:38:35,768 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 1: Pos(12.0,21.1) Bat(58.3%) Est(parado)
-2025-11-28 09:38:38,793 - Mission_Link-UDP Mother - INFO - Rover 1 -> Nave Mae: Mission Request recebido. A verificar condições...
-2025-11-28 09:38:38,793 - Mission_Link-UDP Mother - INFO - Nave Mae: Missao 3 atribuida a Rover 1.
-2025-11-28 09:38:40,773 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 1: Pos(16.9,20.4) Bat(57.0%) Est(a_caminho)
-2025-11-28 09:38:45,777 - Thread-1 (handle_rover_telemetry) - INFO - RX Rover 1: Pos(41.7,16.9) Bat(54.5%) Est(a_caminho)
-2025-11-28 09:38:48,719 - Thread-1 (handle_rover_telemetry) - WARNING - Rover ('10.0.4.20', 53440) desligou-se.
-sionLink-1 - INFO - A viajar de (12.0, 21.1) para (90.0, 10.0)...
-2025-11-28 09:38:40,772 - Telemetry-1 - INFO - Enviado: ID= 1|Pos=( 16.9, 20.4)|Bat= 57.0|Est=a_caminho|Mis=3
-2025-11-28 09:38:45,777 - Telemetry-1 - INFO - Enviado: ID= 1|Pos=( 41.7, 16.9)|Bat= 54.5|Est=a_caminho|Mis=3
-2025-11-28 09:38:48,713 - Main-1 - INFO - [Main] A desligar Rover (Ctrl+C)...

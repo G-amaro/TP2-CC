@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Rover as Rover (Cliente)
+    participant NaveMae as Nave-Mãe (Servidor)
+
+    Note over Rover, NaveMae: Fase 1: Estabelecimento da Ligação TCP
+
+    activate NaveMae
+    Note left of NaveMae: Servidor TCP à escuta (Porta 50010)<br/>Bloqueado em sock.accept()
+    
+    Rover->>NaveMae: sock.connect()
+    
+    NaveMae-->>Rover: Ligação Aceite
+    Note left of NaveMae: Cria Thread "Handler" dedicada<br/>para este Rover
+    
+    Note over Rover, NaveMae: Ligação Estabelecida!
+
+    %% Fase 2: Loop de Dados %%
+    loop Envio Contínuo (a cada 5s)
+        Note right of Rover: 1. Recolhe Estado (ID, Pos, Bat, etc.)
+        Note right of Rover: 2. Formata Texto (Padding)<br/>" 1 10.5 20.0 99.9em_missao   M-001     "
+        Note right of Rover: 3. Encode UTF-8 (Gera 39 Bytes)
+        
+        Rover->>NaveMae: Envia Pacote Fixo (39 Bytes)
+        
+        activate NaveMae
+        Note left of NaveMae: 1. recv_all(39) - Lê exatamente 39 bytes
+        Note left of NaveMae: 2. Decode UTF-8
+        Note left of NaveMae: 3. Fatiamento (Slicing) por índices:<br/>[0:2], [2:7], [7:12], etc.
+        Note left of NaveMae: 4. Atualiza Base de Dados Global
+        deactivate NaveMae
+    end
+
+    %% Fase 3: Encerramento %%
+    Note over Rover, NaveMae: Fase 3: Encerramento (Opcional)
+    Rover->>NaveMae: Fecha Socket (sock.close)
+    Note left of NaveMae: Recebe 0 bytes -> Fecha Thread
+    deactivate NaveMae
