@@ -8,7 +8,7 @@ import random
 from telemetry_client import run_telemetry_stream
 from sync_rover import sync
 from mission_link_client import run_mission_link_rover
-from physics_simulator import run_physics_simulator             # <<< COMENTADO
+from physics_simulator import run_physics_simulator            
 
 
 file_dir = os.path.dirname(__file__)
@@ -49,8 +49,8 @@ if __name__ == "__main__":
 
 
     logging.info("A simular Sincronização (UDP)...")
-    #sync_success = sync(ROVER_ID)
-    sync_success = True
+    sync_success = sync(ROVER_ID)
+    #sync_success = True --> Teste
     threading.current_thread().name = f"Main-{ROVER_ID}"
 
     if not sync_success:
@@ -69,7 +69,6 @@ if __name__ == "__main__":
         daemon=True
     )
 
-    # Thread 2: Cliente de Mission Link (UDP)
     thread_ml = threading.Thread(
         target=run_mission_link_rover,
         name=f"MissionLink-{ROVER_ID}",
