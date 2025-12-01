@@ -1,0 +1,14 @@
+{"rover_id": 2, "last_seen": 1764546849.2372758, "posicao": [18.3, 72.7], "bateria": 100.0, "estado": "parado", "missao": "Nenhuma"}
+{"rover_id": 2, "last_seen": 1764546854.2408834, "posicao": [18.3, 72.7], "bateria": 99.0, "estado": "parado", "missao": "Nenhuma"}
+{"rover_id": 2, "last_seen": 1764546859.244128, "posicao": [18.3, 72.7], "bateria": 98.2, "estado": "parado", "missao": "Nenhuma"}
+{"rover_id": 2, "last_seen": 1764546864.2499976, "posicao": [37.3, 66.1], "bateria": 96.0, "estado": "a_caminho", "missao": "2"}
+{"rover_id": 2, "last_seen": 1764546869.256422, "posicao": [51.4, 61.2], "bateria": 93.5, "estado": "em_missao", "missao": "2"}
+{"rover_id": 2, "last_seen": 1764546874.258174, "posicao": [51.4, 61.2], "bateria": 91.0, "estado": "em_missao", "missao": "2"}
+{"rover_id": 2, "last_seen": 1764546879.264706, "posicao": [51.4, 61.2], "bateria": 88.5, "estado": "em_missao", "missao": "2"}
+{"rover_id": 2, "last_seen": 1764547079.704733, "posicao": [48.7, 40.3], "bateria": 100.0, "estado": "parado", "missao": "Nenhuma"}
+{"rover_id": 2, "last_seen": 1764547084.7089226, "posicao": [31.0, 31.0], "bateria": 97.5, "estado": "a_caminho", "missao": "1"}
+{"rover_id": 2, "last_seen": 1764547089.7156997, "posicao": [13.3, 21.7], "bateria": 95.5, "estado": "em_missao", "missao": "1"}
+{"rover_id": 2, "last_seen": 1764547094.722396, "posicao": [13.3, 21.7], "bateria": 93.0, "estado": "em_missao", "missao": "1"}
+{"rover_id": 2, "last_seen": 1764547099.7238884, "posicao": [13.3, 21.7], "bateria": 90.5, "estado": "em_missao", "missao": "1"}
+{"rover_id": 2, "last_seen": 1764547104.7303348, "posicao": [13.3, 21.7], "bateria": 88.0, "estado": "em_missao", "missao": "1"}
+{"rover_id": 2, "last_seen": 1764547109.7350316, "posicao": [13.3, 21.7], "bateria": 85.5, "estado": "em_missao", "missao": "1"}

@@ -49,7 +49,8 @@ if __name__ == "__main__":
 
 
     logging.info("A simular Sincronização (UDP)...")
-    sync_success = sync(ROVER_ID)
+    #sync_success = sync(ROVER_ID)
+    sync_success = True
     threading.current_thread().name = f"Main-{ROVER_ID}"
 
     if not sync_success:
