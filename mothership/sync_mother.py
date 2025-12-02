@@ -17,9 +17,22 @@ def sync():
 
 
     file_dir = os.path.dirname(__file__)
-    json_path = os.path.join(file_dir, "../info/rovers_info.json")
-    with open(json_path, "r") as f:
-        dados = json.load(f)
+    info_dir = os.path.join(file_dir, "../info")
+    os.makedirs(info_dir, exist_ok=True)
+
+    json_path = os.path.join(info_dir, "rovers_info.json")
+
+    if not os.path.exists(json_path):
+        with open(json_path, "w") as f:
+            json.dump([], f)
+
+    dados = []
+
+    try:
+        with open(json_path, "r") as f:
+            dados = json.load(f)
+    except json.decoder.JSONDecodeError:
+        pass
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

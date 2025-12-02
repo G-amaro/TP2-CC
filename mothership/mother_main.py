@@ -12,6 +12,7 @@ from api_server import run_api_server
 
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
+info_dir = os.path.join(file_dir, "../info")
 
 os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
@@ -30,11 +31,10 @@ g_telemetry_lock = threading.Lock()
 # g_rovers_info_lock = threading.Lock()
 
 # --- FUNÇÃO DE LIMPEZA ---
-def cleanup_telemetry_data():
+def cleanup_all_data():
     """Apaga os ficheiros de histórico de telemetria gerados."""
-    logging.info("A limpar ficheiros de telemetria...")
-    
-    # Opção 1: Apagar a pasta inteira e recriá-la
+    logging.info("A limpar TODOS os ficheiros...")
+
     if os.path.exists(DATA_DIR):
         try:
             shutil.rmtree(DATA_DIR) # Apaga a pasta e tudo o que lá está
@@ -42,6 +42,27 @@ def cleanup_telemetry_data():
             logging.info(f"Pasta {DATA_DIR} limpa com sucesso.")
         except Exception as e:
             logging.error(f"Erro ao limpar dados: {e}")
+
+
+    files_to_delete = ["rovers_info.json", "completed_missions.json"]
+
+    if os.path.exists(info_dir):
+        for file in files_to_delete:
+            file_path = os.path.join(info_dir, file)
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    logging.info(f"Removido {file_path}")
+                except Exception as e:
+                    logging.error(f"Erro ao deletar o ficheiro {file}: {e}")
+
+    if os.path.exists(log_path):
+        try:
+            logging.shutdown()
+            os.remove(log_path)
+            print(f"Ficheiro {log_path} apagado com sucesso.")
+        except Exception as e:
+            print(f"Erro ao remover {log_path}: {e}")
 
 # --- Bloco Main ---
 if __name__ == "__main__":
@@ -93,7 +114,7 @@ if __name__ == "__main__":
         logging.info("[Main] Interrupção recebida (Ctrl+C).")
         
         # --- CHAMAR LIMPEZA AQUI ---
-        cleanup_telemetry_data()
+        cleanup_all_data()
         
         logging.info("[Main] A desligar Nave-Mãe.")
         sys.exit(0)

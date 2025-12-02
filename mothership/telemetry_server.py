@@ -73,7 +73,10 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
                 r_bat = float(bat_str.strip())
                 r_est = est_str.strip()
                 r_mis = mis_str.strip()
-                
+
+                if "low_power" in r_est:
+                    log.warning(f"AVISO: Rover {r_id} reporta BATERIA FRACA ({r_bat}%). A Recarregar...")
+
                 telemetry_data = {
                     "rover_id": r_id,
                     "last_seen": time.time(),

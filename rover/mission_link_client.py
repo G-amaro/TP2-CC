@@ -32,6 +32,11 @@ def  run_mission_link_rover(state, lock, rover_id):
         with lock:
             estado_atual = state['estado_op']
 
+        if estado_atual == "low_power_sleep":
+            logging.info(f"Em modo de recarga. A aguardar...")
+            time.sleep(5)
+            continue
+
         if estado_atual=="parado":
 
             logging.info(f"A pedir missao (Seq {seq})...")
@@ -138,23 +143,41 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         with lock:
             current_state = state["estado_op"]
 
-        while True:
-            with lock:
-                current_state = state["estado_op"]
-            if current_state != "low_power_sleep":
-                with lock:
-                    state['estado_op'] = "em_missao"
-                break
-                #dorme e depois, quando tiver carregado, continua a missao
+        # while True:
+        #     with lock:
+        #         current_state = state["estado_op"]
+        #     if current_state != "low_power_sleep":
+        #         with lock:
+        #             state['estado_op'] = "em_missao"
+        #         break
+        #         #dorme e depois, quando tiver carregado, continua a missao
+        #
+        #     else:
+        #         logging.info(f"O rover vai pausar a missao e carregar(30s)!")
+        #         time.sleep(1)
+        if current_state == "low_power_sleep":
+            logging.warning("Bateria Critica! A pausar missao para recarga...")
 
-            else:
-                logging.info(f"O rover vai pausar a missao e carregar(30s)!")
+            while True:
                 time.sleep(1)
+                with lock:
+                    if state["estado_op"] != "low_power_sleep":
+                        state["estado_op"] = "em_missao"
+                        break
+
+
+            logging.info("Recarga completa. A retornar missao...")
+
+
+
 
 
 
         time.sleep(intervalo)
         processo += step
+        if processo >= 100:
+            break
+
 
         dados_fake = generate_simulated_data(tarefa)
 
