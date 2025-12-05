@@ -168,15 +168,16 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
             logging.info("Recarga completa. A retornar missao...")
 
-
-
-
-
-
         time.sleep(intervalo)
         processo += step
+
+
+        with lock:
+            state['progresso'] = processo
+
         if processo >= 100:
             break
+
 
 
         dados_fake = generate_simulated_data(tarefa)

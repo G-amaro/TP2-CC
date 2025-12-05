@@ -82,10 +82,9 @@ def handle_rover_telemetry(client_socket, rover_addr, db, lock):
                     "last_seen": time.time(),
                     "posicao": (r_x, r_y),
                     "bateria": r_bat,
-                    "estado": r_est,
-                    "missao": r_mis
+                    "estado_op": r_est,
+                    "missao_atual": r_mis if r_mis != "" else None
                 }
-
                 log.info(f"RX Rover {r_id}: Pos({r_x},{r_y}) Bat({r_bat}%) Est({r_est})")
                 
                 with lock:

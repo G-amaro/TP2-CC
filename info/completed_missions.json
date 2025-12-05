@@ -1,0 +1,49 @@
+[
+    {
+        "id_missao": 1,
+        "tarefa": "captura_imagens",
+        "progress": 100,
+        "imagens": [
+            "img_75_0.png"
+        ],
+        "rover_id": 1,
+        "tempo_execucao": 60,
+        "received_at": "2025-12-05 10:38:47.771560"
+    },
+    {
+        "id_missao": 3,
+        "tarefa": "analise_atmosferica",
+        "progress": 100,
+        "temperatura": -10.01,
+        "composicao": {
+            "co2": 90,
+            "o2": 0,
+            "n2": 1
+        },
+        "rover_id": 1,
+        "tempo_execucao": 120,
+        "received_at": "2025-12-05 10:40:07.817818"
+    },
+    {
+        "id_missao": 2,
+        "tarefa": "coleta_amostras_solo",
+        "progress": 100,
+        "id_amostra": 2565,
+        "peso": 249,
+        "profundidade": 16.4,
+        "rover_id": 2,
+        "tempo_execucao": 40,
+        "received_at": "2025-12-05 10:41:41.387779"
+    },
+    {
+        "id_missao": 4,
+        "tarefa": "captura_imagens",
+        "progress": 100,
+        "imagens": [
+            "img_18_0.png"
+        ],
+        "rover_id": 1,
+        "tempo_execucao": 40,
+        "received_at": "2025-12-05 10:41:44.895880"
+    }
+]

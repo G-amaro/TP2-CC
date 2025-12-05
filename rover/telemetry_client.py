@@ -48,8 +48,15 @@ def run_telemetry_stream(state, lock):
                 est_str = estado_truncado.ljust(STATE_W)
              
                 missao_raw = st.get("missao_atual")
-                if missao_raw is None: missao_raw = "Nenhuma"
-                miss_str = str(missao_raw).ljust(MISSION_W)
+            
+                progresso = st.get("progresso", 0) 
+                
+                if missao_raw is None or missao_raw == "Nenhuma":
+                    miss_str_temp = "Nenhuma"
+                else:
+                    miss_str_temp = f"{missao_raw} {int(progresso)}%"
+
+                miss_str = miss_str_temp.ljust(MISSION_W)[:MISSION_W]
 
                 final_str = id_str + pos_x_str + pos_y_str + bat_str + est_str + miss_str
                 

@@ -7,7 +7,6 @@ import sys
 NAVE_MAE_IP = "10.0.2.20" 
 PORT = 8080
 
-# --- CÓDIGOS DE CORES ANSI ---
 class Cor:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -50,7 +49,6 @@ def obter_estado_missao():
             mostrar_interface(dados)
         else:
             print(f"{Cor.RED}[Erro HTTP {response.status}]{Cor.END}")
-            
         conn.close()
     except Exception:
         limpar_ecra()
@@ -59,71 +57,60 @@ def obter_estado_missao():
 
 def mostrar_interface(dados):
     limpar_ecra()
-    
     rovers = dados.get("rovers", {})
-    missoes = dados.get("missoes", [])
+    missoes_pend = dados.get("missoes_pendentes", [])
+    missoes_conc = dados.get("missoes_concluidas", [])
     agora = time.time() 
 
     print(f"{Cor.BLUE}╔═════════════════════════════════════════════════════════════════════════════╗ {Cor.END}")
     print(f"{Cor.BLUE}║                            SALEMA CONTROL CENTER                            ║{Cor.END}")
     print(f"{Cor.BLUE}╚═════════════════════════════════════════════════════════════════════════════╝{Cor.END}")
-
     print("-" * 80)
-
     print(f"\n{Cor.BOLD} FROTA DE ROVERS ({len(rovers)} registados){Cor.END}")
     
     if not rovers:
         print(f"   {Cor.YELLOW}>> Nenhum sinal de telemetria detetado...{Cor.END}")
     else:
-        
-        print(f"{'ID':<8} {'ESTADO':<12} {'POSIÇÃO (X, Y)':<20} {'BATERIA':<21} {'MISSÃO ATUAL':<20}{Cor.END}")
-        
+        print(f"{'ID':<8} {'ESTADO':<12} {'POSIÇÃO (X, Y)':<21} {'BATERIA':<16} {'MISSÃO ATUAL/PROG':<20}{Cor.END}")
         for r_id, info in rovers.items():
-            
             last_seen = info.get('last_seen', 0)
-            diffTempo = agora - last_seen
-            
+            diff = agora - last_seen
             bat = info.get('bateria', 0)
             pos = info.get('posicao', [0,0])
             missao = info.get('missao_atual')
 
-            if diffTempo > 5.0:
-            
-                estado_display = f"OFFLINE"
+            if diff > 5.0:
+                estado_disp = "OFFLINE"
                 cor_est = Cor.RED
             else:
-                estado_raw = info.get('estado_op', 'ONLINE')
-                estado_display = estado_raw
-                cor_est = obter_cor_estado(estado_raw)
+                estado_disp = info.get('estado_op', 'ONLINE')
+                cor_est = obter_cor_estado(estado_disp)
 
             if missao is None:
                 missao_str = "---"
-                cor_missao = Cor.END
+                cor_mis = Cor.END
             else:
                 missao_str = str(missao)
-                cor_missao = Cor.YELLOW 
-            
-            pos_str = f"({pos[0]:.1f}, {pos[1]:.1f})"
-            cor_bat = obter_cor_bateria(bat)
-            barra = barra_progresso(bat)
+                cor_mis = Cor.YELLOW 
 
             print(f"{Cor.BOLD}{r_id:<8}{Cor.END} "
-                  f"{cor_est}{estado_display:<12}{Cor.END} "
-                  f"{pos_str:<20} "
-                  f"{cor_bat}{bat:>5.1f}% {barra}{Cor.END}"
-                  f"{cor_missao}{missao_str:>13}{Cor.END} ")
+                  f"{cor_est}{estado_disp:<12}{Cor.END} "
+                  f"({pos[0]:.1f}, {pos[1]:.1f})".ljust(21) + 
+                  f"{obter_cor_bateria(bat)}{bat:>13.1f}% {barra_progresso(bat)}{Cor.END}"
+                  f"{cor_mis}{missao_str:>13}{Cor.END} ")
 
     print("\n" + "-" * 80)
+    print(f"{Cor.BOLD} MISSÕES PENDENTES: {len(missoes_pend)}{Cor.END}")
     
-    print(f"{Cor.BOLD} REGISTO DE MISSÕES{Cor.END}")
-    if not missoes:
-        print(f"   {Cor.CYAN}>> Aguardando atribuição de missões...{Cor.END}")
-    else:
-        # AMARO !
-        pass
+    print("\n" + "-" * 80)
+    print(f"{Cor.BOLD} MISSÕES CONCLUÍDAS ({len(missoes_conc)}){Cor.END}")
+    if missoes_conc:
+        print(f"{'ID':<10} {'ROVER':<10} {'TEMPO (s)':<10}{Cor.END}")
+        for m in missoes_conc:
+             print(f"{' ':<1}{m.get('id_missao','?'):<10} {str(m.get('rover_id','?')):<10} {str(m.get('tempo_execucao','?')):<10}")
 
     print("\n" + "=" * 80)
-    print(f"{Cor.BOLD}CTRL+C para encerrar a conexão.{Cor.END}")
+    print(f"{Cor.BOLD}CTRL+C para encerrar.{Cor.END}")
 
 if __name__ == "__main__":
     try:
@@ -131,5 +118,4 @@ if __name__ == "__main__":
             obter_estado_missao()
             time.sleep(1)
     except KeyboardInterrupt:
-        print(f"\n{Cor.RED} Ground Control encerrado.{Cor.END}")
         sys.exit(0)

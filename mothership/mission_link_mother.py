@@ -9,53 +9,35 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.mission_link import header_builder, header_parser,  mission_packer, report_parser
 from rover.physics_simulator import RATE_MISSION
 
-
 ML_PORT=50001
 
-def save_mission_complete(payload_dict):
+def save_mission_complete(payload_dict, history_list, lock):
     file_dir = os.path.dirname(__file__)
     json_file = os.path.join(file_dir, '../info/completed_missions.json')
+    
+    payload_dict["received_at"] = str(datetime.now())
+    
+    with lock:
+        history_list.append(payload_dict)
 
-    history = []
-    if os.path.exists(json_file):
-        try:
-            if os.stat(json_file).st_size > 0:
-                with open(json_file, 'r') as f:
-                    history = json.load(f)
-        except Exception as e:
-            logging.warning(f"Erro ao ler completed_missions.json: {e}")
-            history = []
+    try:
+        disk_history = []
+        if os.path.exists(json_file) and os.stat(json_file).st_size > 0:
+            with open(json_file, 'r') as f:
+                disk_history = json.load(f)
+        
+        disk_history.append(payload_dict)
+        with open(json_file, 'w') as f:
+            json.dump(disk_history, f, indent=4)
+            
+        logging.info(f"Mission {payload_dict.get('id_missao')} guardada.")
+    except Exception as e:
+        logging.error(f"Erro ao guardar completed_missions: {e}")
 
-    payload_dict["received_at"] = str (datetime.now())
-    history.append(payload_dict)
-
-    with open(json_file, 'w') as f:
-        json.dump(history, f, indent=4)
-
-    logging.info(f"Mission {payload_dict.get('id_missao')} save complete")
-
-
-def run_mission_link_mother(status_db, lock_status):
-
-    file_dir = os.path.dirname(__file__)
-    json_missions_path = os.path.join(file_dir, "../info/missions.json")
-    json_completed_missions_path = os.path.join(file_dir, "../info/completed_missions.json")
-
-    #opens mission.json
-    if os.path.exists(json_missions_path):
-        with open(json_missions_path, 'r') as f:
-            missions = json.load(f)
-    logging.info(f"Carregadas {len(missions)} missoes do ficheiro 'missions.json'")
-
-    #opens or creates completed_missions.json
-
-    with open(json_completed_missions_path, 'w') as f:
-        json.dump([], f)
-    logging.info("ficheiro 'completed_missions.json' criado com sucesso")
-
+# Assinatura atualizada para receber listas partilhadas
+def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, lock_missions):
 
     reliability_db = {}
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(('0.0.0.0', ML_PORT))
@@ -69,114 +51,76 @@ def run_mission_link_mother(status_db, lock_status):
 
             if message:
                 seq_recebido = message['seq']
-                rover_id=message['rover_id']
+                rover_id = message['rover_id']
                 msg_type = message['message_type']
 
                 if rover_id not in reliability_db:
-                    logging.info(f"Novo Rover detetado no Mission Link: ID {rover_id}")
-                    reliability_db[rover_id] = {
-                        "last_seq" : -1,
-                        "mother_seq": 1,
-                        "last_response": None
-                    }
+                    reliability_db[rover_id] = {"last_seq": -1, "mother_seq": 1, "last_response": None}
 
                 reliability_rover = reliability_db[rover_id]
                 if reliability_rover["last_seq"] == seq_recebido:
-                    logging.warning(f"Rover {rover_id} -> Nave Mae: mensagem duplicada recebida. seq: {seq_recebido}. reenviando resposta anterior")
-                    ultima_resposta = reliability_rover["last_response"]
-
-                    if ultima_resposta: sock.sendto(ultima_resposta, addr)
+                    if reliability_rover["last_response"]: sock.sendto(reliability_rover["last_response"], addr)
                     continue
-
                 elif seq_recebido < reliability_rover["last_seq"]:
-                    logging.warning(f"Mensagem antiga recebida. Seq: {seq_recebido}. Ignorando.")
                     continue
 
                 response_packet = None
-
-                my_seq =reliability_rover["mother_seq"]
+                my_seq = reliability_rover["mother_seq"]
 
                 if msg_type == "MReq":
-
-                    logging.info(f"Rover {rover_id} -> Nave Mae: Mission Request recebido. A verificar condições...")
-                    rover_status =None
+                    logging.info(f"Rover {rover_id}: Pedido de Missão.")
+                    rover_status = None
                     with lock_status:
                         rover_status = status_db.get(str(rover_id))
 
                     if rover_status is None:
-                        logging.info(f"Nave Mae: Mission Request ignorado: sem dados de telemetria de Rover {rover_id}.")
                         response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
-
                     else:
-                        selected_mission =None
+                        selected_mission = None
+                        bat_atual = float(rover_status.get('bateria',0))
+                        estado_atual = rover_status.get('estado_op', 'parado').strip()
 
-                        bat_atual=float(rover_status.get('bateria',0))
-                        estado_atual = rover_status.get('estado', 'parado').strip()
+                        if bat_atual > 20 and (estado_atual == "parado" or estado_atual == "idle"):
+                            with lock_missions: # LOCK para ler missões com segurança
+                                for mission in missions_db[:]:
+                                    duracao = mission.get('duracao_max_segundos', 0)
+                                    custo = (duracao * RATE_MISSION) + 10 
+                                    mission['bateria_min_prevista'] = float(custo)
 
-                        if bat_atual > 20 and estado_atual == "parado":
-                            for mission in missions[:]:
-                                duracao = mission.get('duracao_max_segundos', 0)
-                                custo = (duracao * RATE_MISSION) + 10 # 10 é a margem de deslocação e segurança
-                                mission['bateria_min_prevista'] = float(custo)
-
-                                if rover_status['bateria'] - custo > 10:
-                                    selected_mission = mission
-                                    missions.remove(mission)
-                                    break
-
-                        else:
-                            logging.info(f"Nave Mae: Rover {rover_id} não elegível (Bat: {bat_atual}%, Est: {estado_atual})")
-
+                                    if rover_status['bateria'] - custo > 10:
+                                        selected_mission = mission
+                                        missions_db.remove(mission) # Remove da lista partilhada
+                                        break
+                        
                         if selected_mission:
-                            logging.info(f"Nave Mae: Missao {selected_mission['id_missao']} atribuida a Rover {rover_id}.")
+                            logging.info(f"Atribuida {selected_mission['id_missao']} a Rover {rover_id}")
                             mission_bytes = mission_packer(selected_mission)
                             if mission_bytes:
-
                                 response_packet = header_builder(rover_id, my_seq, seq_recebido, "MHan", mission_bytes)
-
-
                         else:
-                            logging.info(f"Nenhuma missao atribuida a Rover {rover_id}. (Buffer vazio ou bateria insuficiente)")
                             response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
 
-
                 elif msg_type == "MRep":
-
-                    relatorio = report_parser(message['payload'])
-                    if relatorio:
-                        logging.info(f"Rover {rover_id} -> Nave Mae: Relatório {relatorio.get('progress')}% da missao {relatorio.get('id_missao')}")
-
-                    response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "") #acks simples nao ttêm seq numero, logo é 0
+                    response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
 
                 elif msg_type == "MCon":
-
-                    relatorio_final= report_parser(message['payload'])
+                    relatorio_final = report_parser(message['payload'])
                     if relatorio_final:
-                        logging.info(f"Rover {rover_id} -> Nave Mae: Relatório Final da missao {relatorio_final.get('id_missao')}")
-                        try:
-                            save_mission_complete(relatorio_final)
-                        except Exception as e:
-                            logging.error(f"ERRO: erro ao guardar relatorio final: {e}")
+                        logging.info(f"Rover {rover_id}: Missão Concluída.")
+                        relatorio_final['rover_id'] = rover_id
+                        if 'tempo_execucao' not in relatorio_final:
+                            relatorio_final['tempo_execucao'] = selected_mission.get('duracao_max_segundos', 0) 
+
+                        save_mission_complete(relatorio_final, completed_db, lock_missions)
+                        
                     response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "" )
-                elif msg_type == "MAck":
-                    logging.debug(f"Rover {rover_id} -> Nave Mae: Ack recebido do Rover {rover_id}")
-                    pass
 
-
-                elif msg_type == "Err":
-
-                    logging.error(f"ERRO reportado pelo rover {rover_id}")
+                elif msg_type == "MAck" or msg_type == "Err":
                     response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "")
 
                 if response_packet:
-
                     sock.sendto(response_packet, addr)
-
-                    reliability_db[rover_id]= {
-                        "last_seq": seq_recebido,
-                        "last_response": response_packet,
-                        "mother_seq": my_seq+1,
-                    }
+                    reliability_db[rover_id] = {"last_seq": seq_recebido, "last_response": response_packet, "mother_seq": my_seq+1}
 
         except Exception as e:
-            logging.error(f"ERRO: erro no loop: {e}")
+            logging.error(f"Erro MissionLink: {e}")

@@ -4,6 +4,7 @@ import time
 import sys
 import os
 import shutil
+import json
 
 from telemetry_server import run_telemetry_server, DATA_DIR
 from sync_mother import sync
@@ -13,87 +14,78 @@ from api_server import run_api_server
 file_dir = os.path.dirname(__file__)
 log_path = os.path.join(file_dir, "../logs/recorder.log")
 info_dir = os.path.join(file_dir, "../info")
-
 os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
-# --- Configuração de Logging ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_path, mode='w'),
-        logging.StreamHandler(sys.stdout)]
+    handlers=[logging.FileHandler(log_path, mode='w'), logging.StreamHandler(sys.stdout)]
 )
 
-
+# --- MEMÓRIA PARTILHADA ---
 g_telemetry_database = {}
 g_telemetry_lock = threading.Lock()
-# g_rovers_info_lock = threading.Lock()
 
-# --- FUNÇÃO DE LIMPEZA ---
+g_missions_list = []      
+g_completed_missions = [] 
+g_missions_lock = threading.Lock()
+
+def carregar_missoes_iniciais():
+    f_missoes = os.path.join(info_dir, "missions.json")
+    f_completas = os.path.join(info_dir, "completed_missions.json")
+    
+    with g_missions_lock:
+        if os.path.exists(f_missoes):
+            try:
+                with open(f_missoes, 'r') as f:
+                    conteudo = f.read()
+                    if conteudo.strip(): g_missions_list.extend(json.loads(conteudo))
+            except Exception as e:
+                logging.error(f"Erro ao carregar missions.json: {e}")
+
+        with open(f_completas, 'w') as f:
+            json.dump([], f)
+
 def cleanup_all_data():
-    """Apaga os ficheiros de histórico de telemetria gerados."""
     logging.info("A limpar TODOS os ficheiros...")
-
     if os.path.exists(DATA_DIR):
         try:
-            shutil.rmtree(DATA_DIR) # Apaga a pasta e tudo o que lá está
-            os.makedirs(DATA_DIR)   # Recria a pasta vazia para a próxima vez
-            logging.info(f"Pasta {DATA_DIR} limpa com sucesso.")
-        except Exception as e:
-            logging.error(f"Erro ao limpar dados: {e}")
-
+            shutil.rmtree(DATA_DIR)
+            os.makedirs(DATA_DIR)
+        except Exception: pass
 
     files_to_delete = ["rovers_info.json", "completed_missions.json"]
-
     if os.path.exists(info_dir):
         for file in files_to_delete:
-            file_path = os.path.join(info_dir, file)
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                    logging.info(f"Removido {file_path}")
-                except Exception as e:
-                    logging.error(f"Erro ao deletar o ficheiro {file}: {e}")
+            path = os.path.join(info_dir, file)
+            if os.path.exists(path):
+                try: os.remove(path)
+                except Exception: pass
 
-    if os.path.exists(log_path):
-        try:
-            logging.shutdown()
-            os.remove(log_path)
-            print(f"Ficheiro {log_path} apagado com sucesso.")
-        except Exception as e:
-            print(f"Erro ao remover {log_path}: {e}")
-
-# --- Bloco Main ---
 if __name__ == "__main__":
-    
-    logging.info("[Main] A arrancar Nave-Mãe (Modo Teste)...")
+    logging.info("[Main] A arrancar Nave-Mãe...")
+    carregar_missoes_iniciais() 
 
-    thread_sync = threading.Thread(
-        target=sync,
-        name="Sync",
-        args=(),
-        daemon = True # se a main for eliminada, nao se torna uma thread zombi
-    )
+    thread_sync = threading.Thread(target=sync, name="Sync", args=(), daemon=True)
 
     thread_ts = threading.Thread(
         target=run_telemetry_server, 
         name="Telemetry-TCP",
         args=(g_telemetry_database, g_telemetry_lock),
-        daemon = True
+        daemon=True
     )
 
     thread_ml = threading.Thread(
         target=run_mission_link_mother,
-        name="Mission_Link-UDP Mother",
-        args=(g_telemetry_database, g_telemetry_lock),
+        name="Mission_Link-UDP",
+        args=(g_telemetry_database, g_telemetry_lock, g_missions_list, g_completed_missions, g_missions_lock),
         daemon=True
     )
 
     thread_api = threading.Thread(
         target=run_api_server,
         name="API-HTTP",
-        args=(g_telemetry_database, g_telemetry_lock), 
+        args=(g_telemetry_database, g_telemetry_lock, g_missions_list, g_completed_missions, g_missions_lock), 
         daemon=True
     )
 
@@ -104,17 +96,9 @@ if __name__ == "__main__":
 
     logging.info("[Main] Serviço lançado.")
 
-    # --- Manter Vivo ---
     try:
-        while True:
-            time.sleep(1)
-        
+        while True: time.sleep(1)
     except KeyboardInterrupt:
-        print("\n") # Só para dar uma quebra de linha visual
-        logging.info("[Main] Interrupção recebida (Ctrl+C).")
-        
-        # --- CHAMAR LIMPEZA AQUI ---
+        logging.info("[Main] A desligar...")
         cleanup_all_data()
-        
-        logging.info("[Main] A desligar Nave-Mãe.")
         sys.exit(0)
