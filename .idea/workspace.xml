@@ -5,7 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/rover/mission_link_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/mission_link_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.mmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.png" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.mmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185645.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185649.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185649.mmd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,12 +93,16 @@
       <workItem from="1763932311557" duration="7426000" />
       <workItem from="1764061891695" duration="12946000" />
       <workItem from="1764690845090" duration="4119000" />
-      <workItem from="1765125261486" duration="6161000" />
+      <workItem from="1765125261486" duration="6193000" />
+      <workItem from="1765135069516" duration="2219000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.mmd" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/TP2_CC$mission_link_client.coverage" NAME="mission_link_client Coverage Results" MODIFIED="1763822508872" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/rover" />

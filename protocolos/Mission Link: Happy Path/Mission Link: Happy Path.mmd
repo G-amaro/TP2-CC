@@ -1,19 +1,29 @@
----
-config:
-  theme: redux-color
-  look: neo
----
 sequenceDiagram
-    participant Rover 1
+    participant Rover_1
     participant Mothership
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."  
-    Mothership->>Rover 1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
-    Rover 1->>Mothership: Rover_ID = 1, Ack_Seq = 2, Message Type = "ack"
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".." #25%
-    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = ".." #50%
-    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 5, Message type = "mission report", Payload = ".." #75%
-    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 5, Message Type = "ack"
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 6, Message type = "mission conclusion", Payload = ".." #100% 
-    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 6, Message Type = "ack"
+
+    Note over Rover_1, Mothership: FASE 1: Negociação
+
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = ""
+
+    Note right of Mothership: Valida bateria e atribui missão.
+    Mothership->>Rover_1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "{Missão...}"
+
+    Note over Rover_1, Mothership: FASE 2: Execução
+
+    Note left of Rover_1: Inicia execução.
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".."
+    Mothership->>Rover_1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
+
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = ".."
+    Mothership->>Rover_1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 5, Message type = "mission report", Payload = ".."
+    Mothership->>Rover_1: Rover_ID = 1, Ack_Seq = 5, Message Type = "ack"
+
+    Note over Rover_1, Mothership: FASE 3: Conclusão
+
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 6, Message type = "mission conclusion", Payload = "100% + Dados Finais"
+    Mothership->>Rover_1: Rover_ID = 1, Ack_Seq = 6, Message Type = "ack"
+    
+    Note right of Mothership: Guarda histórico e liberta Rover.

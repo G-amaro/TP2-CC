@@ -1,41 +1,38 @@
-
 sequenceDiagram
-    participant Rover 1
+    participant Rover_1
     participant Mothership
 
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 1, Message Type = "mission request", Payload = "..."
 
-    Mothership->>Rover 1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
+    Mothership->>Rover_1: Rover_ID = 1, Seq = 2, Ack_Seq = 1, Message Type = "mission handle", Payload = "..."
 
-    Rover 1->>Mothership: Rover_ID = 1, Ack_Seq = 2, Message Type = "ack"
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 3, Message Type = "mission report", Payload = ".." #25%
 
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 3, Message type = "mission report", Payload = ".." #25%
+    Mothership->>Rover_1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 4, Message Type = "mission report", Payload = "..."
+    Mothership-xRover_1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
 
-    Mothership->>Rover 1: Rover_ID = 1, Ack_Seq = 3, Message Type = "ack"
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..."
-    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
-    
-    note right of Rover 1: ❌ ACK perdido na rede!
+    note right of Rover_1: ❌ ACK perdido na rede!
 
-    note left of Rover 1: T1: Timeout (2s) expira. Try 2...
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50% (RETRY)
-    
-    note right of Mothership: Mothership recebe Seq=4 duplicado.
-    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+    note left of Rover_1: T1: Timeout (2s) expira. Tenta pela 2ª vez...
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 4, Message Type = "mission report", Payload = "..." #50% (RETRY)
 
-    note right of Rover 1: ❌ ACK perdido outra vez!
+    note right of Mothership: Mothership recebe Seq=4 duplicado. Não processa a mensagem, apenas reenvia a ultima resposta enviada.
+    Mothership-xRover_1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
 
-    note left of Rover 1: T2: Timeout (4s) expira. Try 3...
-    
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 4, Message type = "mission report", Payload = "..." #50% (RETRY)
-    
-    note right of Mothership: Mothership recebe Seq=4 duplicado.
-    Mothership-xRover 1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+    note right of Rover_1: ❌ ACK perdido outra vez!
 
-    note right of Rover 1: ❌ ACK perdido outra vez!
+    note left of Rover_1: T2: Timeout (4s) expira. Tenta pela 3ª vez...
 
-    note left of Rover 1: T3: Timeout (8s) expira. Try 3...
-   
-    Rover 1->>Mothership: Rover_ID = 1, Seq = 5, Message type = "mission error"
-    
-    note left of Rover 1: Rover aborta a missão e volta a IDLE.
+    Rover_1->>Mothership: Rover_ID = 1, Seq = 4, Message Type = "mission report", Payload = "..." #50% (RETRY)
+
+    note right of Mothership: Mothership recebe Seq=4 duplicado. Não processa a mensagem, apenas reenvia a ultima resposta enviada.
+    Mothership-xRover_1: Rover_ID = 1, Ack_Seq = 4, Message Type = "ack"
+
+    note right of Rover_1: ❌ ACK perdido outra vez!
+
+
+
+    note left of Rover_1: Rover ignora a falta de resposta e passa para o proximo relatório.
+    Rover_1->>Mothership: Rover_ID=1, Seq=5, Type="MRep", Payload="75%" (NEXT)
+    Mothership->>Rover_1: Rover_ID=1, Ack_Seq=5, Type="MAck"
