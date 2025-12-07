@@ -6,12 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/info/rovers_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/completed_missions.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/info/rovers_info.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logs/recorder.log" beforeDir="false" afterPath="$PROJECT_DIR$/logs/recorder.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/mother_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mother_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/mission_link_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mission_link_mother.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mothership/sync_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/sync_mother.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/telemetry_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/telemetry_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/telemetry_data/rover_1_history.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/telemetry_data/rover_2_history.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/rover/mission_link_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/mission_link_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/rover_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/rover_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/sync_rover.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/sync_rover.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,8 +66,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-PY-252.26199.168" />
-        <option value="bundled-python-sdk-b3d66beaba9a-c6efb3732140-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26199.168" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-PY-252.28238.29" />
+        <option value="bundled-python-sdk-a101402ee41c-968fe969f28a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.28238.29" />
       </set>
     </attachedChunks>
   </component>
@@ -93,6 +97,7 @@
       <workItem from="1763932311557" duration="7426000" />
       <workItem from="1764061891695" duration="12946000" />
       <workItem from="1764690845090" duration="4119000" />
+      <workItem from="1765125261486" duration="5657000" />
     </task>
     <servers />
   </component>

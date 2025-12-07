@@ -4,26 +4,16 @@ import os
 import logging
 import time
 
-def sync(rover_id):
-    threading.current_thread().name = f"Sync-{rover_id}"
+def sync():
+
+    threading.current_thread().name = f"Sync"
 
     SYNC_PORT = 50000
     MOTHER_IP = '10.0.2.20'
 
 
-    #mensagem em JSON
-    # msg_sync= {
-    #         "rover_id": str(rover_id),
-    #         "type": "sync request"
-    #         #,"timestamp": datetime.now().isoformat()
-    #     }
-    # message = json.dumps(msg_sync).encode('utf-8')
-
-    #mensagem em string (nº de bytes otimizado)
-    msg_type = "R" # "R" significa request e "A" ack
-    msg_rover_id = str(rover_id).zfill(2)
-
-    msg_str = f"{msg_type}{msg_rover_id}"
+    msg_type = "Req"
+    msg_str = f"{msg_type}"
     message = msg_str.encode('utf-8')
 
 
@@ -47,10 +37,10 @@ def sync(rover_id):
         try:
 
             data, addr = sock.recvfrom(32)
-            logging.debug(f"Sync Rover {rover_id} recebeu dados raw: {data}")
+            logging.debug(f"Sync Rover recebeu dados: {data}")
 
 
-            response_data= data.decode('utf-8') # Exemplo de output possivel "A01" A = ack e 01 = possivel id do rover
+            response_data= data.decode('utf-8')
 
             if(len(response_data) < 3):
                 continue
@@ -58,13 +48,12 @@ def sync(rover_id):
             response_type = response_data[0] #
             response_rover_id = response_data[1:3]
 
+            threading.current_thread().name = f"Sync-{response_rover_id}"
 
-
-
-            if response_type == "A" and response_rover_id == msg_rover_id:
+            if response_type == "A":
                 logging.info(f"Nave Mae({addr[0]}:{addr[1]}) -> Rover {response_rover_id}  : sync ack")
                 sock.close()
-                return True
+                return response_rover_id
 
 
 
@@ -72,10 +61,12 @@ def sync(rover_id):
             time.sleep(time_sleep)
             time_sleep *= 2
             continue
+        except Exception as e:
+            logging.error(f" Erro no sync: {e}.")
 
 
 
-    logging.error(f"Rover "+ str(rover_id) + ": Max number of sync tries with mothership exceeded. Sync ACK missing.")
+    logging.error(f"Rover "+ str(response_rover_id) + ": Max number of sync tries with mothership exceeded. Sync ACK missing.")
 
     sock.close()
     return False

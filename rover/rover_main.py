@@ -37,29 +37,24 @@ g_state_lock = threading.Lock()
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 2:
-        print("Erro: Forneça o <rover_id> como argumento.")
-        sys.exit(1)
-        
-    ROVER_ID = sys.argv[1]
-
-    with g_state_lock:
-        g_rover_state["rover_id"] = ROVER_ID
-        g_rover_state["estado_op"] = "sync"
 
 
     logging.info("A simular Sincronização (UDP)...")
-    sync_success = sync(ROVER_ID)
+    ROVER_ID = sync()
     #sync_success = True --> Teste
-    threading.current_thread().name = f"Main-{ROVER_ID}"
 
-    if not sync_success:
+    if not ROVER_ID:
         logging.critical("Falha na sincronização. A desligar.")
         sys.exit(1)
-        
+
+    threading.current_thread().name = f"Main-{ROVER_ID}"
     logging.info("Sincronização (Simulada) bem sucedida.")
     with g_state_lock:
+
+        g_rover_state["rover_id"] = ROVER_ID
         g_rover_state["estado_op"] = "parado"
+
+
 
 
     thread_ts = threading.Thread(

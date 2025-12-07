@@ -48,7 +48,7 @@ def  run_mission_link_rover(state, lock, rover_id):
                 continue
 
             elif resposta is True :
-                logging.info(f"Mae respondeu: Sem missoes (MAck). Esperar 10s.")
+                logging.info(f"Mae não deu missão (MAck). Esperar 10s.")
                 seq += 1
                 time.sleep(10)
             else :
@@ -199,9 +199,9 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
                 seq += 1
 
             else:
-                logging.error(f"ERRO: Mãe nao confirmou relatório. Abortando missao")
-                with lock: state["estado_op"] = "erro"
-                return seq
+                logging.warning(f"Mãe nao confirmou relatório. continuando missao na mesma...")
+
+
 
 
     time.sleep(intervalo)
@@ -226,14 +226,13 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
             seq += 1
 
         else:
-            logging.error("ERRO: Mae nao confirmou conclusao.")
+            logging.warning(f"Mãe nao confirmou relatório de conclusao.")
 
     with lock:
         state["estado_op"] = "parado"
         state["missao_atual"] = None
 
-    logging.info('a esperar 5 segundos para a Mae ter a telemetria atualizada...')
-    time.sleep(5)
+
     return seq
 
 
@@ -295,8 +294,7 @@ def move_to_target(state, lock, target_x, target_y):
         current_y += step_y
         with lock:
             state['posicao'] = (current_x, current_y)
-            # Opcional: Gastar bateria por movimento
-            # state['bateria'] -= 0.1
+
 
     with lock:
         state['posicao'] = (current_x, current_y)

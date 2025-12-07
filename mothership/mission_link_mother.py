@@ -78,9 +78,8 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                     else:
                         selected_mission = None
                         bat_atual = float(rover_status.get('bateria',0))
-                        estado_atual = rover_status.get('estado_op', 'parado').strip()
 
-                        if bat_atual > 20 and (estado_atual == "parado" or estado_atual == "idle"):
+                        if bat_atual > 20:
                             with lock_missions: # LOCK para ler missões com segurança
                                 for mission in missions_db[:]:
                                     duracao = mission.get('duracao_max_segundos', 0)

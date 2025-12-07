@@ -62,6 +62,14 @@ def cleanup_all_data():
                 try: os.remove(path)
                 except Exception: pass
 
+    logging.shutdown()
+
+    if os.path.exists(log_path):
+        try:
+            os.remove(log_path)
+        except Exception as e:
+            print(f"erro ao eliminar log: {e}")
+
 if __name__ == "__main__":
     logging.info("[Main] A arrancar Nave-Mãe...")
     carregar_missoes_iniciais() 

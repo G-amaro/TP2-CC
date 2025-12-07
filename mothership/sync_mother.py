@@ -7,6 +7,11 @@ from contextlib import aclosing
 from datetime import datetime
 
 
+KNOWN_ROVERS = {
+    "10.0.4.20": 1,
+    "10.0.0.20": 2,
+    "10.0.1.20": 3
+}
 
 
 def sync():
@@ -22,17 +27,17 @@ def sync():
 
     json_path = os.path.join(info_dir, "rovers_info.json")
 
+    dados = []
     if not os.path.exists(json_path):
         with open(json_path, "w") as f:
             json.dump([], f)
 
-    dados = []
 
     try:
         with open(json_path, "r") as f:
             dados = json.load(f)
     except json.decoder.JSONDecodeError:
-        pass
+        dados = []
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -44,39 +49,43 @@ def sync():
             answer, addr = sock.recvfrom(32)
             answer_str= answer.decode('utf-8') # Exemplo de output possivel "R01". R = request e 01 = possivel id do rover
 
-            answer_type = answer_str[0]
-            answer_id_rover = answer_str[1:3]
-
-            if not answer_id_rover.isdigit():
+            answer_type=answer_str
+            if not answer_type=="Req":
                 continue
 
-            if answer_type == "R":
+            id_rover = addr[0]
+            answer_id_rover = KNOWN_ROVERS.get(id_rover, 0)
 
-                logging.info(f"Rover {answer_id_rover} ({addr[0]}:{addr[1]}) -> Nave Mae: sync request")
-
-                info = False
-
-                for r in dados:
-                    if int(r["id"]) == int(answer_id_rover): #info ja existe (atualizar info)
-                        r["IP"]   = addr[0]
-                        r["port"] = addr[1]
-                        info = True
-                        break
-
-                if not info:
-                    rover_info = {
-                        "id":   answer_id_rover,
-                        "IP":   addr[0],
-                        "port": addr[1]
-                    }
-                    dados.append(rover_info)
-
-                with open(json_path, "w") as f:
-                    json.dump(dados, f, indent=4)
+            if answer_id_rover == 0:
+                logging.error("Rover id could not be found")
 
 
-                ack = "A" + answer_id_rover
-                sock.sendto(ack.encode('utf-8'), addr)
+
+            logging.info(f"Rover {answer_id_rover} ({addr[0]}:{addr[1]}) -> Nave Mae: sync request")
+
+            info = False
+
+            for r in dados:
+                if int(r["id"]) == answer_id_rover: #info ja existe (atualizar info)
+                    r["IP"]   = addr[0]
+                    r["port"] = addr[1]
+                    info = True
+                    break
+
+            if not info:
+                rover_info = {
+                    "id":   answer_id_rover,
+                    "IP":   addr[0],
+                    "port": addr[1]
+                }
+                dados.append(rover_info)
+
+            with open(json_path, "w") as f:
+                json.dump(dados, f, indent=4)
+
+
+            ack = "A" + str(answer_id_rover).zfill(2)
+            sock.sendto(ack.encode('utf-8'), addr)
 
 
         except Exception as e:
