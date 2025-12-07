@@ -150,18 +150,7 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         with lock:
             current_state = state["estado_op"]
 
-        # while True:
-        #     with lock:
-        #         current_state = state["estado_op"]
-        #     if current_state != "low_power_sleep":
-        #         with lock:
-        #             state['estado_op'] = "em_missao"
-        #         break
-        #         #dorme e depois, quando tiver carregado, continua a missao
-        #
-        #     else:
-        #         logging.info(f"O rover vai pausar a missao e carregar(30s)!")
-        #         time.sleep(1)
+
         if current_state == "low_power_sleep":
             logging.warning("Bateria Critica! A pausar missao para recarga...")
 
@@ -230,7 +219,7 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
         ack_conc = message_to_mother(rover_id, seq, 0, "MCon", final_bytes, sock)
         seq += 1
-        
+
         if ack_conc:
             logging.info("Missao concluida e confirmada pela Mae!")
 

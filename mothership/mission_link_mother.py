@@ -126,8 +126,6 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                         
                     response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "" )
 
-                elif msg_type == "MAck" or msg_type == "Err":
-                    response_packet = header_builder(rover_id, 0 , seq_recebido, "MAck", "")
 
                 if response_packet:
                     sock.sendto(response_packet, addr)
