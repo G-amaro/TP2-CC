@@ -168,12 +168,14 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         processo += step
 
 
-        with lock:
-            state['progresso'] = processo
+
 
         if processo >= 100:
+            processo = 100
             break
 
+        with lock:
+            state['progresso'] = processo
 
 
         dados_fake = generate_simulated_data(tarefa)
@@ -206,6 +208,9 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
     logging.info(f"A enviar Conclusão 100% (Seq {seq})...")
     dados_finais = generate_simulated_data(tarefa)
 
+    with lock:
+        state['progresso'] = processo
+
     final_dict = {
         "id_missao": m_id,
         "progress": 100,
@@ -230,6 +235,7 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
     with lock:
         state["estado_op"] = "parado"
         state["missao_atual"] = None
+        state['progresso'] = 0
 
 
     return seq
