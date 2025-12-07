@@ -68,6 +68,7 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                 my_seq = reliability_rover["mother_seq"]
 
                 if msg_type == "MReq":
+
                     logging.info(f"Rover {rover_id}: Pedido de Missão.")
                     rover_status = None
                     with lock_status:
@@ -76,28 +77,39 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                     if rover_status is None:
                         response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
                     else:
-                        selected_mission = None
-                        bat_atual = float(rover_status.get('bateria',0))
 
-                        if bat_atual > 20:
-                            with lock_missions: # LOCK para ler missões com segurança
-                                for mission in missions_db[:]:
-                                    duracao = mission.get('duracao_max_segundos', 0)
-                                    custo = (duracao * RATE_MISSION) + 10 
-                                    mission['bateria_min_prevista'] = float(custo)
+                        missions_empty=False
+                        with lock_missions:
+                            if len(missions_db) == 0:
+                                missions_empty = True
 
-                                    if rover_status['bateria'] - custo > 10:
-                                        selected_mission = mission
-                                        missions_db.remove(mission) # Remove da lista partilhada
-                                        break
-                        
-                        if selected_mission:
-                            logging.info(f"Atribuida {selected_mission['id_missao']} a Rover {rover_id}")
-                            mission_bytes = mission_packer(selected_mission)
-                            if mission_bytes:
-                                response_packet = header_builder(rover_id, my_seq, seq_recebido, "MHan", mission_bytes)
+                        if missions_empty:
+                            logging.info(f"Sem missoes no buffer. A enviar ordem de shutdown ao rover {rover_id}.")
+                            response_packet = header_builder(rover_id, 0, seq_recebido, "MEnd", "")
+
                         else:
-                            response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
+                            selected_mission = None
+                            bat_atual = float(rover_status.get('bateria',0))
+
+                            if bat_atual > 20:
+                                with lock_missions: # LOCK para ler missões com segurança
+                                    for mission in missions_db[:]:
+                                        duracao = mission.get('duracao_max_segundos', 0)
+                                        custo = (duracao * RATE_MISSION) + 10
+                                        mission['bateria_min_prevista'] = float(custo)
+
+                                        if rover_status['bateria'] - custo > 10:
+                                            selected_mission = mission
+                                            missions_db.remove(mission) # Remove da lista partilhada
+                                            break
+
+                            if selected_mission:
+                                logging.info(f"Atribuida {selected_mission['id_missao']} a Rover {rover_id}")
+                                mission_bytes = mission_packer(selected_mission)
+                                if mission_bytes:
+                                    response_packet = header_builder(rover_id, my_seq, seq_recebido, "MHan", mission_bytes)
+                            else:
+                                response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")
 
                 elif msg_type == "MRep":
                     response_packet = header_builder(rover_id, 0, seq_recebido, "MAck", "")

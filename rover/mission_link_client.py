@@ -42,10 +42,14 @@ def  run_mission_link_rover(state, lock, rover_id):
             logging.info(f"A pedir missao (Seq {seq})...")
 
             resposta = message_to_mother(rover_id, seq, ack_seq, "MReq", "", sock)
-            if resposta is None or resposta is False:
+            if resposta is False:
                 logging.warning(f"Sem resposta da mae. a esperar 5s...")
                 time.sleep(5)
                 continue
+
+            elif resposta == "SHUTDOWN":
+                logging.info("Mãe enviou ordem de fim (MEnd). A desligar...")
+                os._exit(0)
 
             elif resposta is True :
                 logging.info(f"Mae não deu missão (MAck). Esperar 10s.")
@@ -89,7 +93,10 @@ def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
                     return True
 
                 if answer['message_type'] == "MHan":
-                    return answer['payload'] #o payload vai ser a missao
+                    return answer['payload']
+
+                if answer['message_type'] == "MEnd":
+                    return "SHUTDOWN"
 
 
         except socket.timeout:
@@ -195,10 +202,12 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
             logging.info(f"A enviar Relatório {processo}% (Seq {seq})...")
             ack = message_to_mother(rover_id, seq, 0, "MRep", report_bytes, sock)
 
+
             if ack:
                 seq += 1
 
             else:
+                seq += 1
                 logging.warning(f"Mãe nao confirmou relatório. continuando missao na mesma...")
 
 
@@ -220,10 +229,11 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
     if final_bytes:
 
         ack_conc = message_to_mother(rover_id, seq, 0, "MCon", final_bytes, sock)
-
+        seq += 1
+        
         if ack_conc:
             logging.info("Missao concluida e confirmada pela Mae!")
-            seq += 1
+
 
         else:
             logging.warning(f"Mãe nao confirmou relatório de conclusao.")

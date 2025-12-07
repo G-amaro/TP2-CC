@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.mmd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.png" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Happy Path/Mission Link: Happy Path.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.mmd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link: Unhappy Path: ACK Fail/Mission Link: Unhappy Path: ACK Fail.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185645.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185649.mmd" beforeDir="false" afterPath="$PROJECT_DIR$/protocolos/Mission Link_ Unhappy Path_ Message Fail/Mission Link_ Unhappy Path_ Message Fail-2025-11-15-185649.mmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mothership/mission_link_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mission_link_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/mission_link_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/mission_link_client.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
