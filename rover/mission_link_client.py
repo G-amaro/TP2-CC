@@ -52,7 +52,7 @@ def  run_mission_link_rover(state, lock, rover_id):
                 seq += 1
                 time.sleep(10)
             else :
-                seq += 1#se a mae mandar mission handle ela ja usa seq +1 logo, o seq tem que mudar logo para +2 no rover
+                seq += 1
                 seq = execute_mission(resposta, rover_id, seq, lock, state, sock)
 
         else:
