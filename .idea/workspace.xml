@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9ddd7d4e-1ce7-42df-9533-41a11f0331ae" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ground_control/ground_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/ground_control/ground_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mothership/mission_link_mother.py" beforeDir="false" afterPath="$PROJECT_DIR$/mothership/mission_link_mother.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rover/rover_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/rover/rover_main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +91,7 @@
       <workItem from="1765125261486" duration="6193000" />
       <workItem from="1765135069516" duration="2219000" />
       <workItem from="1765145771041" duration="271000" />
+      <workItem from="1765578006108" duration="2316000" />
     </task>
     <servers />
   </component>

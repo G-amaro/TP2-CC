@@ -2,7 +2,7 @@
     {
         "id_missao": 1,
         "tarefa": "captura_imagens",
-        "coordenadas": {"x": 10, "y": 20, "z": 0},
+        "coordenadas": {"x": 10, "y": 20},
         "duracao_max_segundos": 60,
         "report_intervalo_segundos": 10,
         "bateria_min_prevista": 0.0,
@@ -14,7 +14,7 @@
     {
         "id_missao": 2,
         "tarefa": "coleta_amostras_solo",
-        "coordenadas": {"x": 55, "y": 60, "z": 0},
+        "coordenadas": {"x": 55, "y": 60},
         "duracao_max_segundos": 120,
         "report_intervalo_segundos": 20,
         "bateria_min_prevista": 0.0,

@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
 
     logging.info("A simular Sincronização (UDP)...")
-    #ROVER_ID = sync()
-    ROVER_ID = "1"
+    ROVER_ID = sync()
+    #ROVER_ID = "1"
 
     if not ROVER_ID:
         logging.critical("Falha na sincronização. A desligar.")
