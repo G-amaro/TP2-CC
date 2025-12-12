@@ -19,7 +19,7 @@ W_HEADER_TOTAL = W_ID + W_SEQ + W_ACK + W_MSQ_TYPE + W_TIME + W_PAYLOAD_SIZE
 #############################################
 W_M_ID = 4
 W_M_TASK = 1
-W_M_XYZ = 3 #(3 each)
+W_M_XYZ = 5 #(5 cada)
 W_M_DUR = 5
 W_M_REP = 3
 W_M_BAT = 5
@@ -90,7 +90,6 @@ def header_parser(message):
 
     try:
         if len(message) < W_HEADER_TOTAL:
-            #por aqui uma messagem de log de erro
             return None
 
 
@@ -128,7 +127,6 @@ def header_parser(message):
 
         return answer
     except ValueError:
-        #fazer log de erro
         return None
 
 
@@ -142,8 +140,11 @@ def mission_packer(mission):
 
 
         coords = mission['coordenadas']
-        m_x = str(coords['x']).zfill(W_M_XYZ)
-        m_y = str(coords['y']).zfill(W_M_XYZ)
+        m_x = f"{float(coords['x']):05.1f}"
+        m_y = f"{float(coords['y']):05.1f}"
+
+        if len(m_x) > W_M_XYZ: m_x = "999.9"
+        if len(m_y) > W_M_XYZ: m_y = "999.9"
 
         m_dur = str(mission['duracao_max_segundos']).zfill(W_M_DUR)
         m_rep = str(mission['report_intervalo_segundos']).zfill(W_M_REP)
@@ -181,7 +182,6 @@ def mission_packer(mission):
 
         return message.encode('utf-8')
     except Exception as e:
-        #log error
         return None
 
 
@@ -214,7 +214,7 @@ def mission_parser(mission_bytes):
         mission_dic = {
             "id_missao": int(r_id),
             "tarefa": CODES_TO_TASK.get(r_task_code, "desconhecida"),
-            "coordenadas": {"x": int(r_x), "y": int(r_y)},
+            "coordenadas": {"x": float(r_x), "y": float(r_y)},
             "duracao_max_segundos": int(r_dur),
             "report_intervalo_segundos": int(r_rep),
             "bat_min_prevista": float(r_bat),
@@ -245,7 +245,6 @@ def mission_parser(mission_bytes):
 
         return mission_dic
     except Exception as e:
-        #log de erro
         return None
 
 def report_packer(report_dict):
@@ -300,7 +299,6 @@ def report_packer(report_dict):
 
         return (header + params).encode('utf-8')
     except Exception as e:
-        #logging.error()
         return None
 
 
@@ -371,5 +369,4 @@ def report_parser(data_bytes):
 
         return report
     except Exception as e:
-        #logs
         return None
