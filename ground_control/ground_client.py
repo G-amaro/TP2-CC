@@ -4,7 +4,7 @@ import time
 import os
 import sys
 
-NAVE_MAE_IP = "10.0.3.21" 
+NAVE_MAE_IP = "10.0.2.20"
 PORT = 8080
 
 class Cor:
