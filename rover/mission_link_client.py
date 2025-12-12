@@ -257,10 +257,15 @@ def generate_simulated_data(tarefa):
 
     elif tarefa == "analise_atmosferica":
         dados['temperatura'] = round(random.uniform(-80.0,-10.0), 2)
+        co2 = random.randint(90, 98)
+        sobra =100 - co2
+        o2 = random.randint(0, sobra)
+        n2 = sobra - o2
+
         dados['composicao'] = {
-            "co2" : random.randint(90,98),
-            "o2": random.randint(0,5),
-            "n2" : random.randint(1,5)
+            "co2" : co2,
+            "o2": o2,
+            "n2" : n2
         }
 
     elif tarefa == "coleta_amostras_solo":
