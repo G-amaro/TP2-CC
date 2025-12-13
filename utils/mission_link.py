@@ -39,6 +39,7 @@ W_M_SOL_WGHT = 4
 W_R_ID =4
 W_R_PROG = 3
 W_R_TASK = 1
+W_R_EXEC = 5
 
 #imagens
 W_R_I_QTY = 2
@@ -255,7 +256,10 @@ def report_packer(report_dict):
         task_name = report_dict['tarefa']
         r_task = TASK_CODES.get(task_name, "X")
 
-        header = r_id  + r_prog + r_task
+        tempo = int(report_dict.get('tempo_execucao', 0))
+        r_exec = str(tempo).zfill(W_R_EXEC)
+
+        header = r_id  + r_prog + r_task + r_exec
         params = ""
 
         if r_task == "I":
@@ -314,13 +318,16 @@ def report_parser(data_bytes):
         cursor += W_R_PROG
         r_task = data_str[cursor : cursor + W_R_TASK]
         cursor += W_R_TASK
+        r_exec = data_str[cursor: cursor + W_R_EXEC]
+        cursor += W_R_EXEC
 
         task_name = CODES_TO_TASK.get(r_task, "desconhecida")
 
         report = {
             "id_missao": int(r_id),
             "tarefa": task_name,
-            "progress": int(r_prog)
+            "progress": int(r_prog),
+            "tempo_execucao": int(r_exec)
         }
 
         if r_task == "I":

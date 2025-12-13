@@ -65,7 +65,7 @@ def run_physics_simulator(state, lock):
                         state["bateria"] -= RATE_IDLE
 
                 # --- B. VERIFICAR LIMITE DE 20% (Entrar em Sono) ---
-                if state["bateria"] <= LOW_POWER_THRESHOLD and current_state == "parado":
+                if state["bateria"] <= LOW_POWER_THRESHOLD:
                     if current_state != "low_power_sleep" :
                         state["estado_op"] = "low_power_sleep"
 

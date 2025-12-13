@@ -95,10 +95,10 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                                 with lock_missions: # LOCK para ler missões com segurança
                                     for mission in missions_db[:]:
                                         duracao = mission.get('duracao_max_segundos', 0)
-                                        custo = (duracao * RATE_MISSION) + 15
+                                        custo = (duracao * RATE_MISSION) + 10
                                         mission['bateria_min_prevista'] = float(custo)
 
-                                        if rover_status['bateria'] - custo > 15:
+                                        if rover_status['bateria'] - custo > 5:
                                             selected_mission = mission
                                             missions_db.remove(mission) # Remove da lista partilhada
                                             break
@@ -119,8 +119,6 @@ def run_mission_link_mother(status_db, lock_status, missions_db, completed_db, l
                     if relatorio_final:
                         logging.info(f"Rover {rover_id}: Missão Concluída.")
                         relatorio_final['rover_id'] = rover_id
-                        if 'tempo_execucao' not in relatorio_final:
-                            relatorio_final['tempo_execucao'] = selected_mission.get('duracao_max_segundos', 0) 
 
                         save_mission_complete(relatorio_final, completed_db, lock_missions)
                         

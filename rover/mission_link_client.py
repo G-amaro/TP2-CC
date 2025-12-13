@@ -215,6 +215,7 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
         "id_missao": m_id,
         "progress": 100,
         "tarefa": tarefa,
+        "tempo_execucao": duracao,
         **dados_finais
     }
 
