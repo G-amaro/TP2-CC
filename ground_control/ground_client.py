@@ -37,6 +37,14 @@ def barra_progresso(percentagem, tamanho=10):
     vazio = tamanho - cheio
     return "█" * cheio + "░" * vazio
 
+# [NOTA DE IMPLEMENTAÇÃO - CONSUMO DE API REST]
+# Este cliente atua como um dashboard passivo.
+# Utiliza o método de "Polling" (consultas periódicas) para obter o estado mais recente.
+#
+# 1. Conexão HTTP: Abre uma conexão TCP para a porta 8080 da Nave-Mãe.
+# 2. Request GET: Solicita o recurso '/api/status'.
+# 3. Tratamento de Erros: Se a Nave-Mãe estiver offline (ex: ConnectionRefused),
+#    o cliente não crasha, apenas avisa o utilizador e tenta reconectar na próxima iteração.
 def obter_estado_missao():
     try:
         conn = http.client.HTTPConnection(NAVE_MAE_IP, PORT, timeout=1)
@@ -55,6 +63,13 @@ def obter_estado_missao():
         print(f"\n{Cor.RED}  SEM SINAL DA NAVE-MÃE ({NAVE_MAE_IP}){Cor.END}")
         print("A tentar reconectar...")
 
+# [NOTA DE IMPLEMENTAÇÃO - VISUALIZAÇÃO DE DADOS]
+# Esta função processa o JSON recebido e renderiza uma interface de texto (TUI).
+#
+# - Detetamos rovers "OFFLINE" comparando o 'last_seen' do timestamp da telemetria
+#   com o tempo atual. Se a diferença for > 5s, assumimos perda de sinal.
+# - Formatação: Usamos códigos ANSI (classe Cor) para facilitar a leitura rápida
+#   do estado (ex: Bateria Vermelha = Crítico).
 def mostrar_interface(dados):
     limpar_ecra()
     rovers = dados.get("rovers", {})

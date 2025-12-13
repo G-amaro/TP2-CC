@@ -26,6 +26,14 @@ logging.basicConfig(
 physics_log = logging.getLogger('Physics')
 physics_log.setLevel(logging.DEBUG)
 
+# [NOTA DE IMPLEMENTAÇÃO - MEMÓRIA PARTILHADA & MUTEX]
+# Este dicionário 'g_rover_state' atua como a memória central do Rover.
+# É acedido concorrentemente por 3 threads distintas:
+# 1. Physics (Escrita): Atualiza bateria e muda estado para 'low_power'.
+# 2. MissionLink (Leitura/Escrita): Lê estado para decidir pedir missões, escreve 'em_missao'.
+# 3. Telemetry (Leitura): Lê tudo para enviar para a Nave-Mãe.
+#
+# O 'g_state_lock' é o mecanismo de sincronização que impede corrupção de dados.
 g_rover_state = {
     "rover_id": None,
     "posicao": (random.uniform(0, 100), random.uniform(0, 100)),
@@ -35,13 +43,16 @@ g_rover_state = {
 }
 g_state_lock = threading.Lock()
 
+# [NOTA DE IMPLEMENTAÇÃO - BOOTSTRAP & HANDSHAKE]
+# O processo de arranque segue uma ordem estrita:
+# 1. Sincronização (Bloqueante): O Rover não faz nada até receber um ID da Nave-Mãe.
+#    Isto garante que não "poluímos" a rede com tráfego não autorizado.
+# 2. Configuração: Só depois do 'sync' bem sucedido é que inicializamos o ID no estado.
 if __name__ == "__main__":
-
-
 
     logging.info("A simular Sincronização (UDP)...")
     ROVER_ID = sync()
-    #ROVER_ID = "1"
+    #ROVER_ID = "1" --> Simulação direta sem sync (Para teste)
 
     if not ROVER_ID:
         logging.critical("Falha na sincronização. A desligar.")
@@ -53,9 +64,6 @@ if __name__ == "__main__":
 
         g_rover_state["rover_id"] = ROVER_ID
         g_rover_state["estado_op"] = "parado"
-
-
-
 
     thread_ts = threading.Thread(
         target=run_telemetry_stream,

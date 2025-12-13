@@ -15,6 +15,19 @@ UPDATE_RATE = 1.0
 ML_PORT = 50001
 MOTHER_IP = '10.0.2.20'
 
+# [NOTA DE IMPLEMENTAÇÃO - MÁQUINA DE ESTADOS DO ROVER]
+# Esta função corre na thread 'MissionLink'. Implementa o ciclo de vida principal:
+#
+# 1. Verificação de Estado (Thread-Safe): Acede à memória partilhada ('state')
+#    usando um Lock. Se o Rover estiver em modo 'low_power_sleep', esta thread
+#    adormece para não gastar recursos nem pedir missões.
+#
+# 2. Polling de Missões: Se estiver 'parado', envia periodicamente (MReq) pedidos
+#    à Nave-Mãe.
+#
+# 3. Tratamento de Ordens:
+#    - MHan (Mission Handle): Recebe payload e inicia execução.
+#    - MEnd (Mission End): Ordem de shutdown remoto enviada pela mãe.
 def  run_mission_link_rover(state, lock, rover_id):
 
     logging.info(f"Serviço Mission Link iniciado para Rover {rover_id}")
@@ -27,7 +40,6 @@ def  run_mission_link_rover(state, lock, rover_id):
     sock.bind(('0.0.0.0', 0))
 
     while True:
-        # por logica de carregar
         estado_atual = ""
         with lock:
             estado_atual = state['estado_op']
@@ -64,10 +76,20 @@ def  run_mission_link_rover(state, lock, rover_id):
 
 
 
-
+# [NOTA DE IMPLEMENTAÇÃO - CAMADA DE FIABILIDADE UDP (RDT)]
+# Implementação do mecanismo "Stop-and-Wait" para garantir entrega sobre UDP.
+#
+# 1. Retransmissão Automática: Enviamos a mensagem e entramos num loop.
+#    Se não recebermos resposta dentro do 'timeout', assumimos perda de pacote
+#    e enviamos novamente (até 3 vezes).
+#
+# 2. Backoff Exponencial: Se falhar, aumentamos o tempo de espera (timesleep *= 2)
+#    antes da próxima tentativa para evitar congestionar uma rede já instável.
+#
+# 3. Validação de Sequência: Só aceitamos a resposta se 'ack_seq' corresponder
+#    ao 'seq' que enviámos, garantindo que não estamos a ler pacotes antigos.
 def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
 
-    #mission request message (payload is empty)
     message = header_builder(rover_id, seq, ack_seq, message_type, payload)
 
     sending_max_times = 3
@@ -86,7 +108,6 @@ def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
 
             answer = header_parser(data)
 
-            #o rover só vai receber mission handle e ack
             if answer['ack_seq'] == seq:
 
                 if answer['message_type'] == "MAck":
@@ -110,7 +131,16 @@ def message_to_mother(rover_id, seq, ack_seq, message_type, payload, sock):
     logging.error(f"Falha: a mae nao respondeu após 3 tentativas (seq {seq}).")
     return False
 
-
+# [NOTA DE IMPLEMENTAÇÃO - LÓGICA DE EXECUÇÃO & COORDENAÇÃO]
+# Esta função simula o trabalho do Rover durante uma missão.
+#
+# 1. Atualização de Estado: Usa 'lock' para informar as outras threads (Telemetria)
+#    que o rover mudou para "a_caminho" ou "em_missao".
+#
+# 2. Simulação de Pausa (Bateria): Dentro do loop de progresso, verificamos
+#    constantemente se a thread de Física alterou o estado para 'low_power_sleep'.
+#    Se sim, esta thread bloqueia (espera ativa/sleep) até a bateria carregar,
+#    retomando a missão exatamente onde parou.
 def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
     mission_data = mission_parser(payload_bytes)
@@ -118,8 +148,6 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
     if not mission_data:
         logging.error("ERRO: nao consegui ler o payload da missao")
         return seq
-
-
 
     tarefa = mission_data['tarefa']
     m_id = mission_data['id_missao']
@@ -145,7 +173,7 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
     processo = 0
     step = round(100/n_relatorios)
 
-    while processo < 90: #para nao interferir com o relatorio final
+    while processo < 90: 
         current_state = ""
         with lock:
             current_state = state["estado_op"]
@@ -166,9 +194,6 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
         time.sleep(intervalo)
         processo += step
-
-
-
 
         if processo >= 100:
             processo = 100
@@ -200,8 +225,6 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
             else:
                 seq += 1
                 logging.warning(f"Mãe nao confirmou relatório. continuando missao na mesma...")
-
-
 
 
     time.sleep(intervalo)
@@ -241,9 +264,10 @@ def execute_mission(payload_bytes,  rover_id, seq, lock, state, sock):
 
     return seq
 
-
-
-
+# [NOTA DE IMPLEMENTAÇÃO - SIMULAÇÃO DE DADOS]
+# Gera dados aleatórios baseados no tipo de tarefa para popular os relatórios.
+# Em "coleta_amostras_solo", gera IDs e pesos fictícios.
+# Em "analise_atmosferica", gera composição de gases (CO2, O2, N2) que soma 100%.
 def generate_simulated_data(tarefa):
     dados = {}
 
@@ -276,6 +300,11 @@ def generate_simulated_data(tarefa):
 
     return dados
 
+# [NOTA DE IMPLEMENTAÇÃO - SIMULAÇÃO DE MOVIMENTO]
+# Simula a deslocação física do Rover.
+# Calcula a distância euclidiana e divide o trajeto em passos discretos.
+# A cada passo, atualiza a 'posicao' no estado partilhado (protegido por Lock),
+# permitindo que a Telemetria envie a posição a mudar em tempo real.
 def move_to_target(state, lock, target_x, target_y):
 
     with lock:

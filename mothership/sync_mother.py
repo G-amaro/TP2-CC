@@ -6,20 +6,29 @@ import time
 from contextlib import aclosing
 from datetime import datetime
 
-
+# [NOTA DE IMPLEMENTAÇÃO - MAPEAMENTO ESTÁTICO DE IPs]
+# Como estamos num ambiente simulado (CORE) com IPs fixos, usamos este dicionário
+# para associar o endereço de rede físico (IP) a um ID lógico de Rover (1, 2, 3).
 KNOWN_ROVERS = {
     "10.0.4.20": 1,
     "10.0.0.20": 2,
     "10.0.1.20": 3
 }
 
-
+# [NOTA DE IMPLEMENTAÇÃO - SERVIÇO DE SINCRONIZAÇÃO (UDP)]
+# Este serviço corre numa thread independente e serve para o "Handshake" inicial.
+#
+# 1. Escuta Passiva: Fica à espera de mensagens curtas ("Req") na porta 50000.
+#
+# 2. Registo de Presença: Quando recebe um pedido, identifica o rover pelo IP,
+#    e atualiza o ficheiro 'rovers_info.json'. Isto serve de "Lista de Presenças"
+#    persistente para que a API saiba quem está na rede, mesmo antes de haver telemetria.
+#
+# 3. Protocolo de ACK: Responde com "A" + ID (ex: "A01"). Isto confirma ao Rover
+#    que ele foi aceite na rede e pode prosseguir para o arranque dos outros serviços.
 def sync():
 
     SYNC_PORT = 50000
-
-
-
 
     file_dir = os.path.dirname(__file__)
     info_dir = os.path.join(file_dir, "../info")
@@ -44,11 +53,9 @@ def sync():
     sock.bind(('0.0.0.0', SYNC_PORT))
 
     while True:
-        #receber
         try:
             answer, addr = sock.recvfrom(32)
-            answer_str= answer.decode('utf-8') # Exemplo de output possivel "R01". R = request e 01 = possivel id do rover
-
+            answer_str= answer.decode('utf-8') 
             answer_type=answer_str
             if not answer_type=="Req":
                 continue
@@ -66,7 +73,7 @@ def sync():
             info = False
 
             for r in dados:
-                if int(r["id"]) == answer_id_rover: #info ja existe (atualizar info)
+                if int(r["id"]) == answer_id_rover: 
                     r["IP"]   = addr[0]
                     r["port"] = addr[1]
                     info = True

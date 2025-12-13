@@ -9,6 +9,19 @@ from utils.mission_link import header_parser, header_builder
 ML_PORT = 50001
 HOST = '0.0.0.0'
 
+# [NOTA DE IMPLEMENTAÇÃO - INTEGRAÇÃO & "CHAOS ENGINEERING"]
+# Este script atua como um "Fault Injector" (Injetor de Falhas).
+# Substitui a Nave-Mãe real para validar a robustez do Rover.
+#
+# 1. Teste Determinístico: Em vez de usar perda de pacotes aleatória (ex: 20%),
+#    que é difícil de reproduzir, este servidor ignora propositadamente as
+#    primeiras 2 mensagens de CADA sequência.
+#
+# 2. Objetivo: Obrigar o Rover a entrar em Timeout e disparar a lógica de
+#    retransmissão (Stop-and-Wait) implementada no 'mission_link_client.py'.
+#
+# 3. Critério de Sucesso: Se o Rover conseguir completar a troca de mensagens
+#    à 3ª tentativa, provamos que o mecanismo de fiabilidade funciona.
 def run_chaos_server():
     logging.basicConfig(
         level=logging.INFO, 

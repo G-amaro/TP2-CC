@@ -22,7 +22,19 @@ logging.basicConfig(
     handlers=[logging.FileHandler(log_path, mode='w'), logging.StreamHandler(sys.stdout)]
 )
 
-# --- MEMÓRIA PARTILHADA ---
+# [NOTA DE IMPLEMENTAÇÃO - MEMÓRIA PARTILHADA & CONCORRÊNCIA]
+# Este bloco define o estado global do sistema, acessível por todas as threads.
+#
+# 1. g_telemetry_database: Dicionário que guarda o estado mais recente de cada Rover.
+#    - Escrito por: Thread Telemetry-TCP (freq alta).
+#    - Lido por: Thread Mission_Link-UDP (para validar bateria) e API-HTTP (para dashboard).
+#
+# 2. g_missions_list: Lista de missões pendentes carregadas do JSON.
+#    - Modificado por: Thread Mission_Link-UDP (remove missões à medida que atribui).
+#
+# 3. Locks (g_telemetry_lock, g_missions_lock): Mutexes obrigatórios para garantir
+#    "Thread-Safety". Impedem que uma thread leia dados enquanto outra está a escrever,
+#    evitando corrupção de memória ou comportamentos imprevisíveis.
 g_telemetry_database = {}
 g_telemetry_lock = threading.Lock()
 
@@ -46,6 +58,10 @@ def carregar_missoes_iniciais():
         with open(f_completas, 'w') as f:
             json.dump([], f)
 
+# [NOTA DE IMPLEMENTAÇÃO - GRACEFUL SHUTDOWN]
+# Garante que o sistema deixa o ambiente limpo ao encerrar.
+# Remove ficheiros temporários e logs antigos para garantir que a próxima execução
+# começa com um estado "limpo" e determinístico.
 def cleanup_all_data():
     logging.info("A limpar TODOS os ficheiros...")
     if os.path.exists(DATA_DIR):
@@ -70,6 +86,18 @@ def cleanup_all_data():
         except Exception as e:
             print(f"erro ao eliminar log: {e}")
 
+# [NOTA DE IMPLEMENTAÇÃO - ORQUESTRAÇÃO DE SERVIÇOS]
+# O Main Thread atua apenas como gestor de arranque.
+#
+# 1. Arquitetura Multi-Thread: Lançamos 4 serviços independentes em paralelo:
+#    - Sync (UDP Broadcast): Descoberta de rovers.
+#    - Telemetry (TCP Server): Receção de dados contínuos.
+#    - Mission Link (UDP Server): Gestão fiável de missões.
+#    - API (HTTP Server): Interface para o mundo exterior.
+#
+# 2. Daemon Threads: Todas as threads são configuradas como 'daemon=True'.
+#    Isto significa que se o Main Thread encerrar (via Ctrl+C), todas as threads
+#    filhas são mortas automaticamente pelo SO, evitando processos "zombies".
 if __name__ == "__main__":
     logging.info("[Main] A arrancar Nave-Mãe...")
     carregar_missoes_iniciais() 

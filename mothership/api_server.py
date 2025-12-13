@@ -9,6 +9,16 @@ class MothershipHandler(http.server.BaseHTTPRequestHandler):
     r_db, r_lock = None, None
     m_db, c_db, m_lock = None, None, None
 
+    # [NOTA DE IMPLEMENTAÇÃO - ENDPOINT REST & CONCORRÊNCIA]
+    # Este método gere os pedidos HTTP GET. O endpoint principal é '/api/status'.
+    #
+    # 1. Cabeçalhos: Configuramos 'application/json' e CORS ('*') para permitir que
+    #    qualquer cliente (Ground Control ou Browser) consuma a API sem bloqueios.
+    #
+    # 2. Leitura Thread-Safe: Como as bases de dados (r_db, m_db) estão a ser escritas
+    #    pelas threads de Telemetria e MissionLink em simultâneo, é OBRIGATÓRIO usar
+    #    Locks (r_lock, m_lock) antes de ler. Fazemos uma cópia (.copy()) rápida
+    #    para libertar o lock o mais depressa possível e não bloquear o sistema.
     def do_GET(self):
         if self.path == '/api/status':
             self.send_response(200)
@@ -40,6 +50,15 @@ class MothershipHandler(http.server.BaseHTTPRequestHandler):
     
     def log_message(self, format, *args): return
 
+# [NOTA DE IMPLEMENTAÇÃO - SERVIDOR HTTP & INJEÇÃO DE DEPENDÊNCIA]
+# Esta função corre na sua própria Thread (API-HTTP).
+#
+# Desafio Técnico: A classe 'MothershipHandler' é instanciada automaticamente pela
+# biblioteca 'http.server' a cada novo pedido. Não podemos passar argumentos no __init__.
+#
+# Solução: Injetamos as referências para a memória partilhada (DBs e Locks) diretamente
+# nas variáveis estáticas da classe antes de iniciar o loop 'serve_forever'.
+# Assim, todas as instâncias do handler têm acesso aos dados globais do sistema.
 def run_api_server(r_db, r_lock, m_db, c_db, m_lock):
     logging.info(f"[API] A iniciar servidor HTTP na porta {PORT}...")
     
